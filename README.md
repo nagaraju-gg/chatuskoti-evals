@@ -6,9 +6,9 @@ This repository implements a deterministic V1 prototype for the `Vec3` research 
 
 The strongest current result in this repo is the torch-backed adversarial calibration benchmark, not the open-loop controller runs.
 
-- canonical benchmark summary: [summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
-- benchmark figure: [benchmark_figure.svg](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
-- paper-ready section: [paper_figure_1.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/paper_figure_1.md)
+- canonical benchmark summary: [summary.md](artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
+- benchmark figure: [benchmark_figure.svg](artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
+- paper-ready section: [paper_figure_1.md](docs/paper_figure_1.md)
 
 Headline result:
 
@@ -34,7 +34,7 @@ The reports distinguish between:
 The repo now treats detector stress tests as a first-class artifact.
 
 - We include deliberately adversarial interventions to stress-test detectors.
-- The named failure injection set lives in [catuskoti_ar/scenarios.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/scenarios.py).
+- The named failure injection set lives in [catuskoti_ar/scenarios.py](catuskoti_ar/scenarios.py).
 - The goal is to prove that `Vec3` distinguishes clean wins from pyrrhic, Goodhart, broken, and incomparable outcomes under a controlled benchmark-specific setup.
 
 ## Canonical demo cases
@@ -45,7 +45,7 @@ These are the three paper/demo anchor cases hard-coded into the repo metadata:
 - Goodhart example
 - recovery via Vec3 history
 
-They are defined in [catuskoti_ar/scenarios.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/scenarios.py) and are intended to become the core figures for the paper and demo.
+They are defined in [catuskoti_ar/scenarios.py](catuskoti_ar/scenarios.py) and are intended to become the core figures for the paper and demo.
 
 ## Interpretability outputs
 
@@ -166,24 +166,24 @@ For open-loop comparison, `challenge` mode is the better current narrative than 
 
 The strongest current project artifact is the torch-backed adversarial calibration benchmark:
 
-- canonical run summary: [summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
-- benchmark figure: [benchmark_figure.svg](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
-- benchmark caption: [benchmark_figure_caption.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure_caption.md)
-- paper-ready condensation: [paper_ready_summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/paper_ready_summary.md)
-- paper/demo figure section: [paper_figure_1.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/paper_figure_1.md)
-- claims and limitations note: [canonical_failure_benchmark.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/canonical_failure_benchmark.md)
-- release checklist: [release_checklist.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/release_checklist.md)
-- license: [LICENSE](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/LICENSE)
-- citation metadata: [CITATION.cff](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/CITATION.cff)
+- canonical run summary: [summary.md](artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
+- benchmark figure: [benchmark_figure.svg](artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
+- benchmark caption: [benchmark_figure_caption.md](artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure_caption.md)
+- paper-ready condensation: [paper_ready_summary.md](artifacts/torch_failure_set_e10_v5/failure_injection/paper_ready_summary.md)
+- paper/demo figure section: [paper_figure_1.md](docs/paper_figure_1.md)
+- claims and limitations note: [canonical_failure_benchmark.md](docs/canonical_failure_benchmark.md)
+- release checklist: [release_checklist.md](docs/release_checklist.md)
+- license: [LICENSE](LICENSE)
+- citation metadata: [CITATION.cff](CITATION.cff)
 
 ## Real backend
 
-The repo now includes a lazy-loaded real backend in [catuskoti_ar/torch_backend.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/torch_backend.py).
+The repo now includes a lazy-loaded real backend in [catuskoti_ar/torch_backend.py](catuskoti_ar/torch_backend.py).
 
 - Default backend: `simulator`
 - Real backend: `torch`
-- Install file: [requirements-torch.txt](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/requirements-torch.txt)
-- Setup notes: [docs/real_backend.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/real_backend.md)
+- Install file: [requirements-torch.txt](requirements-torch.txt)
+- Setup notes: [docs/real_backend.md](docs/real_backend.md)
 
 The torch backend is intentionally lazy-loaded so the simulator path and test suite still work in environments that do not have `torch` or `torchvision` installed.
 
@@ -192,7 +192,7 @@ On the torch path:
 - `stochastic_depth_*` uses residual drop-path on the ResNet blocks
 - `dropout_high` is a separate classifier-dropout stress action
 
-The operational handoff is documented in [docs/next_steps.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/next_steps.md).
+The operational handoff is documented in [docs/next_steps.md](docs/next_steps.md).
 
 ## Expected runtime and cost
 
@@ -214,8 +214,8 @@ The comparison run also writes:
 
 ## Repo structure
 
-- [catuskoti_ar/benchmark.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/benchmark.py)
-- [catuskoti_ar/scoring.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/scoring.py)
-- [catuskoti_ar/resolver.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/resolver.py)
-- [catuskoti_ar/proposals.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/proposals.py)
-- [catuskoti_ar/reporting.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/reporting.py)
+- [catuskoti_ar/benchmark.py](catuskoti_ar/benchmark.py)
+- [catuskoti_ar/scoring.py](catuskoti_ar/scoring.py)
+- [catuskoti_ar/resolver.py](catuskoti_ar/resolver.py)
+- [catuskoti_ar/proposals.py](catuskoti_ar/proposals.py)
+- [catuskoti_ar/reporting.py](catuskoti_ar/reporting.py)

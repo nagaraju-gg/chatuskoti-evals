@@ -2,7 +2,7 @@
 
 This document captures the strongest current benchmark artifact for the project:
 
-- source run: [summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
+- source run: [summary.md](../artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
 - benchmark type: explicit adversarial calibration suite
 - backend: torch
 - budget: `10` epochs, `1` seed, `num_workers=0`
@@ -70,4 +70,3 @@ Avoid wording like:
 - The benchmark uses explicit adversarial probes for calibration.
 - The open-loop torch experiments are still weaker than the benchmark result.
 - The current result is strongest as a controlled stress-test, not yet as a broad claim about unconstrained automated research.
-

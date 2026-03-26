@@ -10,11 +10,11 @@ Use this checklist before treating the repo as a public benchmark release.
 
 ## Required artifacts
 
-- Canonical benchmark report: [summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
-- Figure: [benchmark_figure.svg](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
-- Figure caption: [benchmark_figure_caption.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure_caption.md)
-- Paper-ready section: [paper_figure_1.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/paper_figure_1.md)
-- Claims and limitations note: [canonical_failure_benchmark.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/docs/canonical_failure_benchmark.md)
+- Canonical benchmark report: [summary.md](../artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
+- Figure: [benchmark_figure.svg](../artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
+- Figure caption: [benchmark_figure_caption.md](../artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure_caption.md)
+- Paper-ready section: [paper_figure_1.md](paper_figure_1.md)
+- Claims and limitations note: [canonical_failure_benchmark.md](canonical_failure_benchmark.md)
 
 ## Repo hygiene
 

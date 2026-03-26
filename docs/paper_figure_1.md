@@ -1,6 +1,6 @@
 # Figure 1: Canonical Failure Benchmark
 
-![Canonical failure benchmark figure](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
+![Canonical failure benchmark figure](../artifacts/torch_failure_set_e10_v5/failure_injection/benchmark_figure.svg)
 
 ## Result
 
@@ -26,4 +26,3 @@ This figure should be presented as a benchmark-specific adversarial calibration 
 ## Suggested in-paper caption
 
 `Vec3` versus binary evaluation on the canonical four-case failure benchmark. A metric-only binary controller would adopt three of four cases, including pyrrhic, Goodhart-style, and incomparable outcomes. `Vec3` instead routes those cases to `hold`, `reject`, and `reframe`, and escalates the damaged failure case to `rollback`.
-

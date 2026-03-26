@@ -11,7 +11,7 @@ This is a core part of the benchmark story, not an optional appendix. The failur
 - `high_lr`: broken failure injection
 - `eval_tta`: incomparable evaluation injection
 
-The named cases are defined in [catuskoti_ar/scenarios.py](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/catuskoti_ar/scenarios.py).
+The named cases are defined in [catuskoti_ar/scenarios.py](../catuskoti_ar/scenarios.py).
 
 ## Canonical demo cases
 

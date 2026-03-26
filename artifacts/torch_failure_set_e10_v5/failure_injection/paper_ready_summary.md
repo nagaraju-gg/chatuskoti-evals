@@ -1,6 +1,6 @@
 # Vec3 Failure Benchmark
 
-Source artifact: [summary.md](/Users/nagaraju/Desktop/Nagaraju/Auto%20Researcher%20Chatuskoti/artifacts/torch_failure_set_e10_v5/failure_injection/summary.md)
+Source artifact: [summary.md](summary.md)
 
 ## Summary
 
@@ -29,4 +29,3 @@ This is a benchmark-specific calibrated result on a controlled stress suite for 
 ## Suggested caption
 
 `Vec3` versus binary evaluation on a four-case adversarial calibration suite. Binary evaluation would adopt three cases that `Vec3` routes to `hold`, `reject`, or `reframe`, while `Vec3` additionally escalates the damaged failure case to `rollback`.
-
