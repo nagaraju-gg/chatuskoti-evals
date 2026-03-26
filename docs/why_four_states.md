@@ -23,10 +23,12 @@ The important shift is this:
 
 `Chatuskoti Eval Framework` scores each outcome along:
 
-- `truthness`: did the anchored benchmark metric really improve?
-- `coherence`: did internals remain healthy?
-- `comparability`: is this result even comparable to the baseline?
-- `goodhart_score`: did the metric move for suspicious reasons?
+| Axis | What it asks | Why it helps resolve the four-state lens |
+| --- | --- | --- |
+| `truthness` | Did the anchored benchmark metric really improve? | Keeps the basic true/false direction of the result visible. |
+| `coherence` | Did internals remain healthy? | Distinguishes stable results from contradiction-like cases where the metric and the internal story diverge. |
+| `comparability` | Is this result even comparable to the baseline? | Separates normal evaluation from cases that are effectively neither cleanly true nor false because the comparison itself is invalid. |
+| `goodhart_score` | Did the metric move for suspicious reasons? | Catches metric-gaming behavior that can look superficially true on the top-line number alone. |
 
 That extra structure turns evaluation into control logic. A pyrrhic gain should not be treated like a clean gain, and an incomparable gain should not even be treated as a valid before/after result.
 

@@ -24,9 +24,11 @@ Most benchmarks are good at the first two and weak on the latter two. The same f
 
 In this repo, the Chatuskoti idea is not implemented as four hard-coded labels. Instead, it is decomposed into three evaluation axes:
 
-- `truthness`: did the benchmark really improve?
-- `coherence`: is the result internally stable and consistent enough to trust?
-- `comparability`: is the before/after comparison even valid?
+| Axis | What it asks | Why this decomposition matters for four-state logic |
+| --- | --- | --- |
+| `truthness` | Did the benchmark really improve? | Preserves the ordinary true/false question instead of throwing it away. |
+| `coherence` | Is the result internally stable and consistent enough to trust? | Separates ordinary improvement from contradiction-like cases where evidence or behavior pulls in opposing directions. |
+| `comparability` | Is the before/after comparison even valid? | Separates meaningful evaluation from cases that should be treated as neither cleanly true nor false because the comparison itself broke down. |
 
 Those axes generate the practically important outcome types that binary evaluation collapses together:
 
