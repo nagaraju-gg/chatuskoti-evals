@@ -11,7 +11,7 @@ Some questions are:
 - both, because evidence or interpretation conflicts
 - neither, because the question is ill-posed or not meaningfully evaluable
 
-That is the intuition behind [Gautama's Chatuskoti](https://en.wikipedia.org/wiki/Catu%E1%B9%A3ko%E1%B9%ADi), an ancient Indian logical system that extends simple true/false reasoning into a four-way lens.
+That is the intuition behind Gautama's [Chatuskoti](https://en.wikipedia.org/wiki/Catu%E1%B9%A3ko%E1%B9%ADi), an ancient Indian logical system that extends simple true/false reasoning into a four-way lens.
 
 Here is the basic motivation:
 
