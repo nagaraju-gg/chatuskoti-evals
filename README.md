@@ -1,5 +1,7 @@
 # Chatuskoti Eval Framework
 
+Four-state AI eval framework for research outcomes and benchmark decisions. It catches pyrrhic gains, gamed metrics, broken runs, and invalid comparisons that binary pass/fail misses, calibrated on `CIFAR-100 + ResNet-18`.
+
 Modern AI evals usually assume every question has one correct answer and every output can be scored on a single pass/fail axis. That works for straightforward facts, but it breaks down in the real world.
 
 Some questions are:
@@ -42,18 +44,6 @@ Those axes generate the practically important outcome types that binary evaluati
 
 That is why this project uses a Chatuskoti-inspired evaluation logic instead of a single binary accept/reject rule.
 
-## Why four states beat binary eval
-
-| Case | What happened | Binary eval | Chatuskoti Eval Framework | Why it matters |
-| --- | --- | --- | --- | --- |
-| Clean gain | Metric improves and internals stay sane | `adopt` | `adopt` | Good changes should still flow through quickly |
-| Pyrrhic gain | Metric rises while instability widens | `adopt` | `hold` | Prevents shipping seductive but unhealthy updates |
-| Gamed gain | Metric rises while proxy alignment collapses | `adopt` | `reject` | Catches Goodhart-style false positives |
-| Broken result | Metric drops and internals are damaged | `reject` | `rollback` | Separates passive rejection from active damage control |
-| Incomparable gain | Eval protocol changed | `adopt` | `reframe` | Stops invalid leaderboard wins from being treated as real progress |
-
-The point is not “more philosophy.” The point is that a single number often throws away the structure that tells you what to do next.
-
 ## What this repo proves today
 
 This repo is a benchmark-specific calibrated evaluation framework over `CIFAR-100 + ResNet-18`, with:
@@ -63,49 +53,7 @@ This repo is a benchmark-specific calibrated evaluation framework over `CIFAR-10
 - explicit resolver actions: `adopt`, `reject`, `hold`, `rollback`, `reframe`, `keep_going`
 - machine-readable histories, plots, manifests, and markdown reports
 
-It is the evaluation core for a future `Auto Researcher Chatuskoti` loop, not a claim of a fully general autonomous researcher today.
-
-## Future: full Chatuskoti eval benchmark
-
-This repo is not yet a full general-purpose Chatuskoti eval benchmark in the strict sense.
-
-It would cross that line when it has:
-
-1. locked task definitions with strict output schemas
-2. a larger high-quality dataset, including adversarial `both` and `neither` cases
-3. deterministic scoring and formalized rubrics
-4. published baseline model comparisons
-5. clone-and-run reproducibility with stable headline numbers
-
-That is a natural future for this repo. The current version is the benchmark-specific control and evaluation layer that moves in that direction.
-
-## Strong V1 artifacts
-
-The public-facing evidence bundle is organized under [artifacts/strong_v1](artifacts/strong_v1).
-
-The checked-in bundle is a curated torch-backed benchmark package built from the strongest current saved runs in the repo. The release script regenerates the same bundle in a stronger `3`-seed form on a faster machine.
-
-- canonical failure benchmark: [summary.md](artifacts/strong_v1/canonical_failure/failure_injection/summary.md)
-- canonical figure: [benchmark_figure.svg](artifacts/strong_v1/canonical_failure/failure_injection/benchmark_figure.svg)
-- challenge comparison: [comparison.md](artifacts/strong_v1/challenge_compare/comparison.md)
-- challenge case table: [challenge_cases.md](artifacts/strong_v1/challenge_compare/challenge_cases.md)
-- ablation summary: [summary.md](artifacts/strong_v1/ablations/summary.md)
-- artifact landing page: [index.md](artifacts/index.md)
-- plain-language explanation: [why_four_states.md](docs/why_four_states.md)
-- guided walkthrough: [demo.md](docs/demo.md)
-
-## Current headline
-
-The canonical failure benchmark is the main result to lead with.
-
-- binary evaluation would adopt the pyrrhic, gamed, and incomparable benchmark cases
-- `Chatuskoti Eval Framework` routes those same cases to `hold`, `reject`, and `reframe`
-- the damaged failure case is escalated to `rollback`, not just passively rejected
-
-The benchmark-aware `challenge` comparison is companion evidence:
-
-- binary can post the higher metric by accepting benchmark-aware invalid merges
-- `Vec3` preserves structural validity even when that means refusing superficially better numbers
+The current public evidence package shows that a metric-only controller can merge benchmark-aware bad cases that a structured evaluator should treat differently.
 
 ## Quickstart
 
@@ -124,13 +72,6 @@ Regenerate the strongest real benchmark:
   --seeds 3 \
   --num-workers 0 \
   --output artifacts/strong_v1/canonical_failure
-```
-
-Generate the canonical figure:
-
-```bash
-python3 scripts/generate_failure_figure.py \
-  artifacts/strong_v1/canonical_failure/failure_injection/failure_results.json
 ```
 
 Run the benchmark-aware open-loop companion:
@@ -162,6 +103,51 @@ Or regenerate the whole release bundle:
 ```bash
 bash scripts/run_torch_release_bundle.sh
 ```
+
+## Why four states beat binary eval
+
+| Case | What happened | Binary eval | Chatuskoti Eval Framework | Why it matters |
+| --- | --- | --- | --- | --- |
+| Clean gain | Metric improves and internals stay sane | `adopt` | `adopt` | Good changes should still flow through quickly |
+| Pyrrhic gain | Metric rises while instability widens | `adopt` | `hold` | Prevents shipping seductive but unhealthy updates |
+| Gamed gain | Metric rises while proxy alignment collapses | `adopt` | `reject` | Catches Goodhart-style false positives |
+| Broken result | Metric drops and internals are damaged | `reject` | `rollback` | Separates passive rejection from active damage control |
+| Incomparable gain | Eval protocol changed | `adopt` | `reframe` | Stops invalid leaderboard wins from being treated as real progress |
+
+The point is not “more philosophy.” The point is that a single number often throws away the structure that tells you what to do next.
+
+## Current evidence bundle
+
+The public-facing evidence bundle is organized under [artifacts/strong_v1](artifacts/strong_v1).
+
+The checked-in bundle is a curated torch-backed benchmark package built from the strongest current saved runs in the repo. The release script regenerates the same bundle in a stronger `3`-seed form on a faster machine.
+
+- canonical failure benchmark: [summary.md](artifacts/strong_v1/canonical_failure/failure_injection/summary.md)
+  This is the main result. It shows how the framework separates pyrrhic, gamed, broken, and incomparable cases that binary evaluation collapses.
+- canonical figure: [benchmark_figure.svg](artifacts/strong_v1/canonical_failure/failure_injection/benchmark_figure.svg)
+  This is the fastest visual summary of the failure benchmark.
+- challenge comparison: [comparison.md](artifacts/strong_v1/challenge_compare/comparison.md)
+  This is the companion run that shows binary can post a higher metric by merging benchmark-aware invalid cases.
+- challenge case table: [challenge_cases.md](artifacts/strong_v1/challenge_compare/challenge_cases.md)
+  This breaks down the cases that `binary` adopted and `Vec3` blocked.
+- ablation summary: [summary.md](artifacts/strong_v1/ablations/summary.md)
+  This shows which axes matter by removing `coherence`, `comparability`, `goodhart_score`, `wisdom`, and spread gating one at a time.
+- artifact landing page: [index.md](artifacts/index.md)
+- plain-language explanation: [why_four_states.md](docs/why_four_states.md)
+- guided walkthrough: [demo.md](docs/demo.md)
+
+## Headline result
+
+The canonical failure benchmark is the main result to lead with.
+
+- binary evaluation would adopt the pyrrhic, gamed, and incomparable benchmark cases
+- `Chatuskoti Eval Framework` routes those same cases to `hold`, `reject`, and `reframe`
+- the damaged failure case is escalated to `rollback`, not just passively rejected
+
+The benchmark-aware `challenge` comparison is companion evidence:
+
+- binary can post the higher metric by accepting benchmark-aware invalid merges
+- `Vec3` preserves structural validity even when that means refusing superficially better numbers
 
 ## What gets written
 
@@ -210,17 +196,19 @@ This repo should not yet be presented as:
 - universally calibrated across domains
 - proof that `Vec3` always beats binary controllers on any benchmark
 
-## Future AR integration
+## Future: full Chatuskoti eval benchmark
 
-This project is designed to plug into a broader research loop:
+This repo is not yet a full general-purpose Chatuskoti eval benchmark in the strict sense.
 
-1. an external AR system proposes an intervention
-2. the benchmark runner executes it and emits `RunMetrics`
-3. `Chatuskoti Eval Framework` scores the result as `Vec3 + goodhart_score`
-4. the resolver returns `adopt`, `reject`, `hold`, `rollback`, `reframe`, or `keep_going`
-5. history and wisdom feed back into the next proposal
+It would cross that line when it has:
 
-That future system is the right place for `Auto Researcher Chatuskoti`. This repo is the eval layer that makes such a loop safer and more legible.
+1. locked task definitions with strict output schemas
+2. a larger high-quality dataset, including adversarial `both` and `neither` cases
+3. deterministic scoring and formalized rubrics
+4. published baseline model comparisons
+5. clone-and-run reproducibility with stable headline numbers
+
+That is a natural future for this repo. The current version is a benchmark-specific calibrated evaluation framework that moves in that direction.
 
 ## Repo structure
 
