@@ -102,14 +102,23 @@ class FailureCaseResult:
 
 @dataclass(frozen=True)
 class BundleManifest:
+    schema_version: int
     bundle_name: str
+    release_label: str
     artifact_kind: str
+    generated_at: str
+    package_version: str
+    git_commit: str
     benchmark: str
     backend: str
     seeds: int
     epochs: int
     controller_mode: str
     ablation: str
+    benchmark_spec_id: str
+    benchmark_spec: dict[str, Any]
+    detector_config: dict[str, Any]
+    backend_config: dict[str, Any]
     artifact_paths: dict[str, str]
 
 
@@ -123,6 +132,17 @@ class AggregateSummary:
     mean_validity: float
     matched_expectations: int
     total_cases: int
+
+
+@dataclass(frozen=True)
+class CalibrationProfileSummary:
+    label: str
+    notes: str
+    matched_expectations: int
+    total_cases: int
+    preserved_resolutions: int
+    threshold_values: dict[str, float]
+    changed_cases: list[str]
 
 
 def to_jsonable(value: Any) -> Any:

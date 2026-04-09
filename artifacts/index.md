@@ -1,16 +1,17 @@
-# Strong V1.1 Torch Artifact Index
+# Strong V1.2 Torch Artifact Index
 
 This directory collects the strongest current torch-backed evidence bundle for `Chatuskoti Evals`.
 
-The current lead bundle is [strong_v1_1_torch](strong_v1_1_torch). It is the clearest end-to-end evidence for the V1.1 `T/R/V` framing on the real backend.
+The current lead bundle is [strong_v1_2_torch](strong_v1_2_torch). It preserves the same real-backend benchmark result while adding a calibration sweep and richer manifests.
 
 ## Start here
 
-- canonical failure benchmark: [summary.md](strong_v1_1_torch/canonical_failure/failure_injection/summary.md)
-- canonical benchmark figure: [benchmark_figure.svg](strong_v1_1_torch/canonical_failure/failure_injection/benchmark_figure.svg)
-- challenge comparison: [comparison.md](strong_v1_1_torch/challenge_compare/comparison.md)
-- challenge case table: [challenge_cases.md](strong_v1_1_torch/challenge_compare/challenge_cases.md)
-- ablation summary: [summary.md](strong_v1_1_torch/ablations/summary.md)
+- canonical failure benchmark: [summary.md](strong_v1_2_torch/canonical_failure/failure_injection/summary.md)
+- canonical benchmark figure: [benchmark_figure.svg](strong_v1_2_torch/canonical_failure/failure_injection/benchmark_figure.svg)
+- challenge comparison: [comparison.md](strong_v1_2_torch/challenge_compare/comparison.md)
+- challenge case table: [challenge_cases.md](strong_v1_2_torch/challenge_compare/challenge_cases.md)
+- ablation summary: [summary.md](strong_v1_2_torch/ablations/summary.md)
+- calibration summary: [summary.md](strong_v1_2_torch/calibration/summary.md)
 
 ## How to read this bundle
 

@@ -2,12 +2,12 @@
 
 This document captures the strongest current benchmark artifact for the project:
 
-- source run: [summary.md](../artifacts/strong_v1_1_torch/canonical_failure/failure_injection/summary.md)
+- source run: [summary.md](../artifacts/strong_v1_2_torch/canonical_failure/failure_injection/summary.md)
 - benchmark type: explicit adversarial calibration suite
 - backend: torch
 - current artifact budget: `10` epochs, `3` seeds, `num_workers=0`
 
-This document refers to the strongest current torch V1.1 artifact in the repo workspace.
+This document refers to the strongest current torch V1.2 artifact in the repo workspace.
 
 ## Core result
 
@@ -46,6 +46,8 @@ It should not be used to claim:
 - universal threshold validity
 - general superiority across domains
 - superiority without explicit calibration
+
+The V1.2 calibration sweep is consistent with that framing: nearby threshold changes preserve the intended benchmark behavior except when the validity gate is loosened enough to let the incomparable eval-shift case pass.
 
 ## Recommended paper wording
 

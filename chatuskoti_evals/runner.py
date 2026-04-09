@@ -2,14 +2,27 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
+from chatuskoti_evals import __version__
 from chatuskoti_evals.benchmark import create_benchmark_adapter
-from chatuskoti_evals.config import AblationConfig, ExperimentConfig, LoopConfig
+from chatuskoti_evals.config import AblationConfig, DetectorConfig, ExperimentConfig, LoopConfig
 from chatuskoti_evals.actions import ACTION_INDEX
-from chatuskoti_evals.models import AggregateSummary, BaselineRecord, BundleManifest, FailureCaseResult, HistoryEntry, RunMetrics, to_jsonable
+from chatuskoti_evals.models import (
+    AggregateSummary,
+    BaselineRecord,
+    BundleManifest,
+    CalibrationProfileSummary,
+    FailureCaseResult,
+    HistoryEntry,
+    RunMetrics,
+    to_jsonable,
+)
 from chatuskoti_evals.progress import RunProgressContext, RunProgressTracker
 from chatuskoti_evals.proposals import ProposalEngine
 from chatuskoti_evals.reporting import ReportGenerator, aggregate_failure_results
@@ -38,6 +51,13 @@ class FailureCaseExecution:
     expected_resolution: str
     narrative: str
     candidate_metrics: list[RunMetrics]
+
+
+@dataclass(frozen=True)
+class CalibrationProfile:
+    label: str
+    notes: str
+    detector: DetectorConfig
 
 
 def run_single_loop(
@@ -209,20 +229,25 @@ def run_comparison(
     )
     _write_manifest(
         output_root / "manifest.json",
-        BundleManifest(
+        _build_manifest(
+            cfg,
             bundle_name=output_root.name,
             artifact_kind="comparison",
-            benchmark=_benchmark_name(cfg),
-            backend=cfg.backend,
             seeds=seeds,
-            epochs=_epoch_count(cfg),
             controller_mode=mode,
             ablation=cfg.ablation.name,
+            detector_cfg=cfg.ablation.apply(cfg.detector),
             artifact_paths={
                 "comparison": "comparison.md",
                 "summary_json": "comparison_summary.json",
                 "controller_svg": "controller_comparison.svg",
                 "challenge_table": "challenge_cases.md" if mode == "challenge" else "",
+            },
+            benchmark_spec={
+                "kind": "comparison",
+                "iterations": iterations,
+                "proposal_mode": mode,
+                "controllers": ["vec3", "binary"],
             },
         ),
     )
@@ -245,19 +270,22 @@ def run_failure_injection_set(
     report_generator.write_failure_injection_report(report_dir, baseline, results)
     _write_manifest(
         output_root / "manifest.json",
-        BundleManifest(
+        _build_manifest(
+            cfg,
             bundle_name=output_root.name,
             artifact_kind="failure_injection",
-            benchmark=_benchmark_name(cfg),
-            backend=cfg.backend,
             seeds=seeds,
-            epochs=_epoch_count(cfg),
             controller_mode="failure_injection",
             ablation=cfg.ablation.name,
+            detector_cfg=detector_cfg,
             artifact_paths={
                 "summary": "failure_injection/summary.md",
                 "summary_json": "failure_injection/aggregate_summary.json",
                 "results_json": "failure_injection/failure_results.json",
+            },
+            benchmark_spec={
+                "kind": "failure_injection",
+                "scenarios": _failure_scenario_spec(cfg.backend),
             },
         ),
     )
@@ -288,19 +316,86 @@ def run_ablation_bundle(
     report_generator.write_ablation_report(output_root, summaries)
     _write_manifest(
         output_root / "manifest.json",
-        BundleManifest(
+        _build_manifest(
+            cfg,
             bundle_name=output_root.name,
             artifact_kind="ablation_bundle",
-            benchmark=_benchmark_name(cfg),
-            backend=cfg.backend,
             seeds=seeds,
-            epochs=_epoch_count(cfg),
             controller_mode="failure_injection",
             ablation="bundle",
+            detector_cfg=cfg.detector,
             artifact_paths={
                 "summary": "summary.md",
                 "summary_json": "summary.json",
                 "summary_svg": "ablation_summary.svg",
+            },
+            benchmark_spec={
+                "kind": "ablation_bundle",
+                "scenarios": _failure_scenario_spec(cfg.backend),
+                "ablations": list(ablations),
+            },
+        ),
+    )
+    return summaries
+
+
+def run_calibration_bundle(
+    output_root: Path,
+    cfg: ExperimentConfig | None = None,
+    *,
+    seeds: int = 3,
+) -> list[CalibrationProfileSummary]:
+    cfg = cfg or ExperimentConfig()
+    output_root.mkdir(parents=True, exist_ok=True)
+    baseline, executions = _collect_failure_case_executions(cfg, seeds)
+    report_generator = ReportGenerator(output_root)
+    profiles = _build_calibration_profiles(cfg.detector)
+    summaries: list[CalibrationProfileSummary] = []
+    default_actions: list[str] | None = None
+
+    for profile in profiles:
+        results = _score_failure_case_executions(executions, baseline, profile.detector, write_run_log=False)
+        report_generator.write_failure_injection_report(output_root / profile.label / "failure_injection", baseline, results)
+        current_actions = [item.resolution.action for item in results]
+        if default_actions is None:
+            default_actions = current_actions
+        changed_cases = [
+            item.scenario_name
+            for item, default_action in zip(results, default_actions)
+            if item.resolution.action != default_action
+        ]
+        summaries.append(
+            CalibrationProfileSummary(
+                label=profile.label,
+                notes=profile.notes,
+                matched_expectations=sum(1 for item in results if item.matched_expectation),
+                total_cases=len(results),
+                preserved_resolutions=len(results) - len(changed_cases),
+                threshold_values=_threshold_values(profile.detector),
+                changed_cases=changed_cases,
+            )
+        )
+
+    report_generator.write_calibration_report(output_root, summaries)
+    _write_manifest(
+        output_root / "manifest.json",
+        _build_manifest(
+            cfg,
+            bundle_name=output_root.name,
+            artifact_kind="calibration_bundle",
+            seeds=seeds,
+            controller_mode="failure_injection",
+            ablation="threshold_sweep",
+            detector_cfg=cfg.detector,
+            artifact_paths={
+                "summary": "summary.md",
+                "summary_json": "summary.json",
+                "summary_svg": "threshold_sweep.svg",
+            },
+            benchmark_spec={
+                "kind": "threshold_calibration",
+                "scenarios": _failure_scenario_spec(cfg.backend),
+                "profiles": [profile.label for profile in profiles],
             },
         ),
     )
@@ -347,6 +442,8 @@ def _score_failure_case_executions(
     executions: list[FailureCaseExecution],
     baseline: BaselineRecord,
     detector_cfg,
+    *,
+    write_run_log: bool = True,
 ) -> list[FailureCaseResult]:
     results: list[FailureCaseResult] = []
     for execution in executions:
@@ -371,17 +468,18 @@ def _score_failure_case_executions(
                 matched_expectation=matched_signals and matched_resolution,
             )
         )
-        _append_run_log(
-            _run_log_path(),
-            timestamp=datetime.now(UTC).isoformat(),
-            backend="failure_injection",
-            controller="vec3",
-            action_name=execution.action_name,
-            baseline_id=baseline.baseline_id,
-            run_score=run_score,
-            resolution=resolution,
-            ablation=getattr(detector_cfg, "ablation_name", "full"),
-        )
+        if write_run_log:
+            _append_run_log(
+                _run_log_path(),
+                timestamp=datetime.now(UTC).isoformat(),
+                backend="failure_injection",
+                controller="vec3",
+                action_name=execution.action_name,
+                baseline_id=baseline.baseline_id,
+                run_score=run_score,
+                resolution=resolution,
+                ablation=getattr(detector_cfg, "ablation_name", "full"),
+            )
     return results
 
 
@@ -395,6 +493,96 @@ def summarize_loop_results(label: str, results: dict[str, LoopResult]) -> dict[s
         "vec3_history_length": len(vec3.history),
         "binary_history_length": len(binary.history),
     }
+
+
+def _build_calibration_profiles(detector: DetectorConfig) -> list[CalibrationProfile]:
+    return [
+        CalibrationProfile("default", "Current detector thresholds.", detector),
+        CalibrationProfile(
+            "stricter_truth",
+            "Require slightly stronger benchmark improvement before adoption.",
+            replace(detector, adopt_truth_threshold=round(detector.adopt_truth_threshold + 0.05, 3)),
+        ),
+        CalibrationProfile(
+            "looser_truth",
+            "Allow slightly weaker benchmark gains to count as adoption-ready.",
+            replace(detector, adopt_truth_threshold=round(max(0.05, detector.adopt_truth_threshold - 0.05), 3)),
+        ),
+        CalibrationProfile(
+            "stricter_reliability",
+            "Be more conservative about instability before merging.",
+            replace(detector, reliability_threshold=round(min(0.95, detector.reliability_threshold + 0.10), 3)),
+        ),
+        CalibrationProfile(
+            "looser_reliability",
+            "Allow somewhat noisier runs to pass reliability checks.",
+            replace(detector, reliability_threshold=round(max(-0.95, detector.reliability_threshold - 0.10), 3)),
+        ),
+        CalibrationProfile(
+            "stricter_validity",
+            "Treat proxy and comparability issues more aggressively.",
+            replace(detector, validity_threshold=round(min(0.95, detector.validity_threshold + 0.10), 3)),
+        ),
+        CalibrationProfile(
+            "looser_validity",
+            "Allow mild validity damage before reframing.",
+            replace(detector, validity_threshold=round(max(-0.95, detector.validity_threshold - 0.10), 3)),
+        ),
+        CalibrationProfile(
+            "tighter_spread",
+            "Ask for more agreement across seeds before deciding.",
+            replace(detector, max_spread=round(max(0.05, detector.max_spread - 0.08), 3)),
+        ),
+        CalibrationProfile(
+            "looser_spread",
+            "Permit a wider seed spread before forcing keep-going.",
+            replace(detector, max_spread=round(detector.max_spread + 0.08, 3)),
+        ),
+    ]
+
+
+def _build_manifest(
+    cfg: ExperimentConfig,
+    *,
+    bundle_name: str,
+    artifact_kind: str,
+    seeds: int,
+    controller_mode: str,
+    ablation: str,
+    detector_cfg: DetectorConfig,
+    artifact_paths: dict[str, str],
+    benchmark_spec: dict[str, Any],
+) -> BundleManifest:
+    backend_config = _backend_config(cfg)
+    spec_payload = {
+        "benchmark": _benchmark_name(cfg),
+        "backend": cfg.backend,
+        "controller_mode": controller_mode,
+        "detector": to_jsonable(detector_cfg),
+        "backend_config": backend_config,
+        **benchmark_spec,
+    }
+    spec_id = sha256(json.dumps(spec_payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    return BundleManifest(
+        schema_version=2,
+        bundle_name=bundle_name,
+        release_label=f"v{__version__}",
+        artifact_kind=artifact_kind,
+        generated_at=datetime.now(UTC).isoformat(),
+        package_version=__version__,
+        git_commit=_git_commit(),
+        benchmark=_benchmark_name(cfg),
+        backend=cfg.backend,
+        seeds=seeds,
+        epochs=_epoch_count(cfg),
+        controller_mode=controller_mode,
+        ablation=ablation,
+        benchmark_spec_id=spec_id,
+        benchmark_spec=spec_payload,
+        detector_config=to_jsonable(detector_cfg),
+        backend_config=backend_config,
+        artifact_paths=artifact_paths,
+    )
 
 
 def _write_manifest(path: Path, manifest: BundleManifest) -> None:
@@ -413,6 +601,63 @@ def _epoch_count(cfg: ExperimentConfig) -> int:
 
 def _loop_run_count(loop_cfg: LoopConfig) -> int:
     return loop_cfg.n_seeds * (loop_cfg.max_iterations + 1)
+
+
+def _failure_scenario_spec(backend: str) -> list[dict[str, object]]:
+    return [
+        {
+            "name": scenario.name,
+            "action_name": scenario.action_name,
+            "expected_resolution": scenario.expected_resolution,
+            "expected_signals": list(scenario.expected_signals),
+        }
+        for scenario in get_failure_injection_set(backend)
+    ]
+
+
+def _backend_config(cfg: ExperimentConfig) -> dict[str, Any]:
+    if cfg.backend == "torch":
+        return {
+            "data_dir": str(cfg.torch.data_dir),
+            "device": cfg.torch.device,
+            "epochs": cfg.torch.epochs,
+            "batch_size": cfg.torch.batch_size,
+            "eval_batch_size": cfg.torch.eval_batch_size,
+            "num_workers": cfg.torch.num_workers,
+            "learning_rate": cfg.torch.learning_rate,
+            "weight_decay": cfg.torch.weight_decay,
+            "momentum": cfg.torch.momentum,
+            "val_fraction": cfg.torch.val_fraction,
+            "split_seed": cfg.torch.split_seed,
+            "use_amp": cfg.torch.use_amp,
+            "label_smoothing": cfg.torch.label_smoothing,
+            "tta_horizontal_flip": cfg.torch.tta_horizontal_flip,
+        }
+    return to_jsonable(cfg.simulation)
+
+
+def _threshold_values(detector: DetectorConfig) -> dict[str, float]:
+    return {
+        "truth": round(detector.adopt_truth_threshold, 3),
+        "reliability": round(detector.reliability_threshold, 3),
+        "validity": round(detector.validity_threshold, 3),
+        "spread": round(detector.max_spread, 3),
+    }
+
+
+def _git_commit() -> str:
+    repo_root = Path(__file__).resolve().parents[1]
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return "unknown"
+    return result.stdout.strip() or "unknown"
 
 
 def _append_run_log(

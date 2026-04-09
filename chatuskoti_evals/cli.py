@@ -5,11 +5,19 @@ from dataclasses import replace
 from pathlib import Path
 
 from chatuskoti_evals.config import AblationConfig, ExperimentConfig, LoopConfig
-from chatuskoti_evals.runner import run_ablation_bundle, run_comparison, run_failure_injection_set, run_single_loop
+from chatuskoti_evals.runner import (
+    run_ablation_bundle,
+    run_calibration_bundle,
+    run_comparison,
+    run_failure_injection_set,
+    run_single_loop,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Chatuskoti Eval Framework prototype")
+    parser = argparse.ArgumentParser(
+        description="Benchmark-specific evaluator for research-loop outcomes on CIFAR-100 + ResNet-18"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     compare = subparsers.add_parser("compare", help="Run both controllers and generate a comparison report")
@@ -28,6 +36,13 @@ def build_parser() -> argparse.ArgumentParser:
     run_ablation = subparsers.add_parser("run-ablation", help="Run the canonical failure benchmark ablation bundle")
     run_ablation.add_argument("--output", type=Path, default=Path("artifacts/ablation_bundle"))
     add_backend_args(run_ablation)
+
+    run_calibration = subparsers.add_parser(
+        "run-calibration",
+        help="Run a nearby-threshold calibration sweep over the canonical failure benchmark",
+    )
+    run_calibration.add_argument("--output", type=Path, default=Path("artifacts/calibration_bundle"))
+    add_backend_args(run_calibration)
 
     return parser
 
@@ -106,6 +121,10 @@ def main() -> None:
         if args.command == "run-ablation":
             summaries = run_ablation_bundle(args.output, cfg, seeds=args.seeds)
             print(f"Wrote ablation bundle to {args.output} ({len(summaries)} variants)")
+            return
+        if args.command == "run-calibration":
+            summaries = run_calibration_bundle(args.output, cfg, seeds=args.seeds)
+            print(f"Wrote calibration bundle to {args.output} ({len(summaries)} threshold profiles)")
             return
     except ImportError as exc:
         parser.exit(status=1, message=f"{exc}\n")

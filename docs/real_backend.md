@@ -24,7 +24,7 @@ python3 -m chatuskoti_evals.cli compare \
   --batch-size 128 \
   --eval-batch-size 256 \
   --num-workers 0 \
-  --output artifacts/strong_v1_1_torch/challenge_compare
+  --output artifacts/strong_v1_2_torch/challenge_compare
 ```
 
 Run the canonical failure benchmark:
@@ -38,7 +38,21 @@ python3 -m chatuskoti_evals.cli run-failure-set \
   --eval-batch-size 256 \
   --num-workers 0 \
   --seeds 3 \
-  --output artifacts/strong_v1_1_torch/canonical_failure
+  --output artifacts/strong_v1_2_torch/canonical_failure
+```
+
+Run the nearby-threshold calibration sweep:
+
+```bash
+python3 -m chatuskoti_evals.cli run-calibration \
+  --backend torch \
+  --device auto \
+  --epochs 10 \
+  --batch-size 128 \
+  --eval-batch-size 256 \
+  --num-workers 0 \
+  --seeds 3 \
+  --output artifacts/strong_v1_2_torch/calibration
 ```
 
 ## Notes

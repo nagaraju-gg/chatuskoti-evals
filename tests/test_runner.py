@@ -28,11 +28,14 @@ class RunnerTests(unittest.TestCase):
                 vec3_signals = {signal for entry in results["vec3"].history for signal in entry.run_score.fired_signals}
                 self.assertIn("hyper_coherence", vec3_signals)
                 records = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+                manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
                 self.assertEqual(len(records), 8)
                 self.assertEqual(records[0]["schema_version"], 1)
                 self.assertIn("T", records[0])
                 self.assertIn("R", records[0])
                 self.assertIn("V", records[0])
+                self.assertEqual(manifest["schema_version"], 2)
+                self.assertEqual(manifest["package_version"], "1.2.0")
             finally:
                 if previous is None:
                     os.environ.pop("CHATUSKOTI_RUN_LOG_PATH", None)

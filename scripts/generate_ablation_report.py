@@ -71,19 +71,22 @@ def to_run_score(payload: dict[str, object]) -> RunScore:
     return RunScore(
         mean=Vec3(
             truthness=float(mean_payload["truthness"]),
-            coherence=float(mean_payload["coherence"]),
-            comparability=float(mean_payload["comparability"]),
+            reliability=float(mean_payload["reliability"]),
+            validity=float(mean_payload["validity"]),
         ),
         std=Vec3(
             truthness=float(std_payload["truthness"]),
-            coherence=float(std_payload["coherence"]),
-            comparability=float(std_payload["comparability"]),
+            reliability=float(std_payload["reliability"]),
+            validity=float(std_payload["validity"]),
         ),
         mag=float(payload["mag"]),
         spread=float(payload["spread"]),
-        goodhart_score=float(payload["goodhart_score"]),
         fired_signals=list(payload["fired_signals"]),
         raw_detectors={key: float(value) for key, value in payload.get("raw_detectors", {}).items()},
+        axis_components={
+            axis_name: {key: float(value) for key, value in values.items()}
+            for axis_name, values in payload.get("axis_components", {}).items()
+        },
     )
 
 

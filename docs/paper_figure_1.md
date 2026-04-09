@@ -1,12 +1,12 @@
 # Figure 1: Canonical Failure Benchmark
 
-![Canonical failure benchmark figure](../artifacts/strong_v1_1_torch/canonical_failure/failure_injection/benchmark_figure.svg)
+![Canonical failure benchmark figure](../artifacts/strong_v1_2_torch/canonical_failure/failure_injection/benchmark_figure.svg)
 
 ## Result
 
 Figure 1 shows the canonical four-case adversarial calibration benchmark on the torch-backed `CIFAR-100 + ResNet-18` setup. On this benchmark, a metric-only binary controller would adopt `3/4` cases, including the pyrrhic probe, the metric-gaming probe, and the evaluation-regime shift. In contrast, `Vec3` routes those same cases to `hold`, `reframe`, and `reframe`, while escalating the damaged-failure case to `rollback`.
 
-The checked-in figure corresponds to the current curated canonical artifact in the repo. The release bundle script regenerates the same figure layout from a stronger `3`-seed benchmark run.
+The checked-in figure corresponds to the current curated canonical artifact in the repo. The V1.2 release bundle script regenerates the same figure layout from the checked-in `3`-seed benchmark run and records the detector/backend provenance in the manifest.
 
 The benchmark therefore validates the four intended `Vec3` branches on a benchmark-specific calibrated suite:
 

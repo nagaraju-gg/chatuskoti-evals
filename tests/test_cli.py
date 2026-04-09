@@ -14,3 +14,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(cfg.ablation.name, "no_validity")
         self.assertFalse(cfg.detector.enable_validity)
         self.assertTrue(cfg.detector.enable_reliability)
+
+    def test_calibration_command_is_available(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["run-calibration"])
+
+        self.assertEqual(args.command, "run-calibration")

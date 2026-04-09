@@ -10,22 +10,28 @@ Use this checklist before treating the repo as a public `Chatuskoti Eval Framewo
 
 ## Required artifacts
 
-- Canonical benchmark report: [summary.md](../artifacts/strong_v1_1_torch/canonical_failure/failure_injection/summary.md)
-- Figure: [benchmark_figure.svg](../artifacts/strong_v1_1_torch/canonical_failure/failure_injection/benchmark_figure.svg)
-- Figure caption: [benchmark_figure_caption.md](../artifacts/strong_v1_1_torch/canonical_failure/failure_injection/benchmark_figure_caption.md)
-- Challenge comparison: [comparison.md](../artifacts/strong_v1_1_torch/challenge_compare/comparison.md)
-- Ablation summary: [summary.md](../artifacts/strong_v1_1_torch/ablations/summary.md)
+- Canonical benchmark report: [summary.md](../artifacts/strong_v1_2_torch/canonical_failure/failure_injection/summary.md)
+- Figure: [benchmark_figure.svg](../artifacts/strong_v1_2_torch/canonical_failure/failure_injection/benchmark_figure.svg)
+- Figure caption: [benchmark_figure_caption.md](../artifacts/strong_v1_2_torch/canonical_failure/failure_injection/benchmark_figure_caption.md)
+- Challenge comparison: [comparison.md](../artifacts/strong_v1_2_torch/challenge_compare/comparison.md)
+- Ablation summary: [summary.md](../artifacts/strong_v1_2_torch/ablations/summary.md)
+- Calibration summary: `artifacts/strong_v1_2_torch/calibration/summary.md`
+- Calibration sweep figure: `artifacts/strong_v1_2_torch/calibration/threshold_sweep.svg`
 - Paper-ready section: [paper_figure_1.md](paper_figure_1.md)
 - Claims and limitations note: [canonical_failure_benchmark.md](canonical_failure_benchmark.md)
+- Demo page: [release_demo.md](release_demo.md)
 
 ## Repo hygiene
 
 - `python3 -m unittest discover -s tests -v`
-- `python3 scripts/generate_failure_figure.py artifacts/strong_v1_1_torch/canonical_failure/failure_injection/failure_results.json`
+- `python3 scripts/verify_release_bundle.py artifacts/strong_v1_2_torch`
+- `python3 scripts/generate_failure_figure.py artifacts/strong_v1_2_torch/canonical_failure/failure_injection/failure_results.json`
 - Be explicit about whether you are referencing the checked-in curated bundle or a freshly regenerated `3`-seed bundle.
-- Confirm the package version and release label agree before publishing anything as `v1.1`.
-- Add an annotated git tag such as `v1.1.0` once tests and curated artifacts are final.
+- Confirm the package version and release label agree before publishing anything as `v1.2`.
+- Add an annotated git tag such as `v1.2.0` once tests and curated artifacts are final.
 - Confirm the README points to the canonical benchmark artifact first.
+- Confirm each generated manifest includes `package_version`, `git_commit`, `benchmark_spec_id`, and matching artifact paths.
+- If you mention threshold robustness publicly, note that loosening the validity gate to `0.05` flips the incomparable eval-shift case.
 - Avoid committing local environment files, `.DS_Store`, and transient artifacts unless they are intentional benchmark outputs.
 
 ## Safe public claims
@@ -44,5 +50,5 @@ Avoid:
 
 ## Nice-to-have before public release
 
-- A single top-level demo page or notebook that links the benchmark figure and result table
 - A short roadmap for broadening beyond the current benchmark
+- One short note explaining how the calibration sweep should be interpreted when a threshold profile flips a case

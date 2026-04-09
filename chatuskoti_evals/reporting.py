@@ -5,7 +5,15 @@ from collections import Counter
 from pathlib import Path
 from statistics import mean, pstdev
 
-from chatuskoti_evals.models import AggregateSummary, BaselineRecord, FailureCaseResult, HistoryEntry, RunMetrics, to_jsonable
+from chatuskoti_evals.models import (
+    AggregateSummary,
+    BaselineRecord,
+    CalibrationProfileSummary,
+    FailureCaseResult,
+    HistoryEntry,
+    RunMetrics,
+    to_jsonable,
+)
 from chatuskoti_evals.wisdom import WisdomStore
 
 
@@ -309,6 +317,45 @@ class ReportGenerator:
         )
         return path
 
+    def write_calibration_report(self, output_dir: Path, summaries: list[CalibrationProfileSummary]) -> Path:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        rows = [
+            "# Threshold Calibration Sweep",
+            "",
+            "This report re-resolves the canonical failure benchmark under nearby detector thresholds.",
+            "",
+            "| Profile | Matched | Preserved vs default | Thresholds | Changed cases |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+        for summary in summaries:
+            changed = ", ".join(summary.changed_cases) if summary.changed_cases else "none"
+            rows.append(
+                f"| `{summary.label}` | `{summary.matched_expectations}/{summary.total_cases}` | "
+                f"`{summary.preserved_resolutions}/{summary.total_cases}` | "
+                f"`{format_thresholds(summary.threshold_values)}` | {changed} |"
+            )
+        rows.extend(
+            [
+                "",
+                "## Notes",
+                "",
+            ]
+        )
+        for summary in summaries:
+            rows.append(f"- `{summary.label}`: {summary.notes}")
+        path = output_dir / "summary.md"
+        path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+        (output_dir / "summary.json").write_text(
+            json.dumps([to_jsonable(item) for item in summaries], indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        write_bar_chart_svg(
+            output_dir / "threshold_sweep.svg",
+            "Matched Failure Cases by Threshold Profile",
+            {summary.label: summary.matched_expectations for summary in summaries},
+        )
+        return path
+
 
 def classify_region(entry: HistoryEntry) -> str:
     t = entry.run_score.mean.truthness
@@ -437,6 +484,10 @@ def format_components(components: dict[str, float]) -> str:
     if not components:
         return "none"
     return ", ".join(f"{key}={value:.3f}" for key, value in sorted(components.items()))
+
+
+def format_thresholds(values: dict[str, float]) -> str:
+    return ", ".join(f"{key}={value:.2f}" for key, value in values.items())
 
 
 def escape_xml(text: str) -> str:
