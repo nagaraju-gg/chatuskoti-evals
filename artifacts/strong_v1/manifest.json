@@ -1,9 +1,0 @@
-{
-  "artifact_kind": "strong_v1_bundle",
-  "bundle_name": "strong_v1",
-  "components": {
-    "ablations": "ablations/manifest.json",
-    "canonical_failure": "canonical_failure/manifest.json",
-    "challenge_compare": "challenge_compare/manifest.json"
-  }
-}

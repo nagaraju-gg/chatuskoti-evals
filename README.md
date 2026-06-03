@@ -74,7 +74,7 @@ If you want the shortest framing of the project, it is this:
 
 The main evidence in the repo is a controlled benchmark story, not a broad leaderboard claim.
 
-The strongest checked-in torch-backed evidence is now the V1.2 bundle under [artifacts/strong_v1_2_torch](artifacts/strong_v1_2_torch). In that bundle:
+The strongest checked-in torch-backed evidence is now the V1.3 bundle under [`artifacts/strong_v1_3_torch`](artifacts/strong_v1_3_torch). In that bundle:
 
 - the canonical failure benchmark matches `4/4` intended cases
 - binary evaluation would adopt `3/4` benchmark-aware bad cases
@@ -85,24 +85,18 @@ That is the current headline claim this repo can support well:
 
 - structured evaluation preserves benchmark validity better than a metric-only gate on this benchmark
 
-## Why Version 1.2 Matters
+## Why Version 1.3 Matters
 
-Version `1.2.0` is important, but not because it changes the public claim into something broader. It matters because it makes the repo easier to trust, inspect, and regenerate as a technical artifact.
+Version `1.3.0` extends the bundle with a lead-time trajectory analysis and annotation framework for human-rater ground-truth studies. It also adds coupling analysis for detecting early anti-coupling signals before they become pyrrhic.
 
-`1.2.0` adds:
+`1.3.0` adds:
 
-- a threshold calibration sweep via `run-calibration`
-- richer manifests with package version, git commit, backend config, detector config, and benchmark spec id
-- a release bundle script that runs tests, generates artifacts, and verifies the output structure
-- a release demo page that gives a clearer reading order for the evidence bundle
+- lead-time analysis with sliding-window anti-coupling detection
+- annotation framework (`AnnotationStore`, `extract-cases` CLI) for human rater ground-truth studies
+- axis-level ablation names for the independence table
+- calibrated against `PYTHON_BIN` consistent with prior releases
 
-For a technical reader, the practical meaning is:
-
-- you can inspect not just the result, but the conditions that produced it
-- you can test whether nearby threshold choices preserve the intended benchmark behavior
-- you can regenerate a release bundle with stronger provenance checks
-
-The important nuance is that V1.2 does not broaden the scientific claim. It strengthens the same benchmark story with calibration and provenance, and it checks in the corresponding `artifacts/strong_v1_2_torch` bundle.
+The important nuance is that `1.3.0` does not broaden the scientific claim. It strengthens the same benchmark story with richer trajectory evidence and ground-truth annotation support.
 
 ## How To Read The Repo
 
@@ -110,10 +104,10 @@ If you are new to the project, do not start with the CLI.
 
 Start in this order:
 
-1. Read the canonical failure benchmark: [artifacts/strong_v1_2_torch/canonical_failure/failure_injection/summary.md](artifacts/strong_v1_2_torch/canonical_failure/failure_injection/summary.md)
-2. Look at the companion loop comparison: [artifacts/strong_v1_2_torch/challenge_compare/comparison.md](artifacts/strong_v1_2_torch/challenge_compare/comparison.md)
-3. Check whether the extra axes matter: [artifacts/strong_v1_2_torch/ablations/summary.md](artifacts/strong_v1_2_torch/ablations/summary.md)
-4. Then read the release/demo framing: [docs/release_demo.md](docs/release_demo.md)
+1. Read the canonical failure benchmark: [`artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md`](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md)
+2. Look at the annotation cases: [`artifacts/strong_v1_3_torch/annotation_cases.csv`](artifacts/strong_v1_3_torch/annotation_cases.csv)
+3. Check whether the extra axes matter: [`artifacts/strong_v1_3_torch/ablations/summary.md`](artifacts/strong_v1_3_torch/ablations/summary.md)
+4. Then read the release/demo framing: [`docs/release_demo.md`](docs/release_demo.md)
 
 Supporting docs:
 
@@ -130,56 +124,43 @@ Supporting docs:
 .venv/bin/python scripts/check_torch_env.py
 ```
 
-### Run the canonical failure benchmark
+### Run the full evidence bundle
 
 ```bash
-.venv/bin/python -m chatuskoti_evals.cli run-failure-set \
+bash scripts/run_torch_bundle.sh
+```
+
+This generates lead-time analysis, annotation cases, and ablation reports under `artifacts/strong_v{version}_torch/` and automatically stages them in git (replacing any previously tracked bundle).
+
+### Run individual pieces
+
+Lead-time analysis:
+```bash
+.venv/bin/python -m chatuskoti_evals.cli lead-time \
   --backend torch \
   --epochs 10 \
   --seeds 3 \
-  --num-workers 0 \
-  --output artifacts/strong_v1_2_torch/canonical_failure
+  --iterations 15 \
+  --action stochastic_depth_high \
+  --window 5 \
+  --tau 0.4 \
+  --output artifacts/strong_v1_3_torch/lead_time
 ```
 
-### Run the challenge comparison
-
+Extract annotation cases:
 ```bash
-.venv/bin/python -m chatuskoti_evals.cli compare \
-  --mode challenge \
-  --backend torch \
-  --epochs 10 \
-  --iterations 4 \
-  --seeds 3 \
-  --num-workers 0 \
-  --output artifacts/strong_v1_2_torch/challenge_compare
+.venv/bin/python -m chatuskoti_evals.cli extract-cases \
+  --bundle artifacts/strong_v1_3_torch \
+  --output artifacts/strong_v1_3_torch/annotation_cases.csv
 ```
 
-### Run the ablation bundle
-
+Ablation bundle:
 ```bash
 .venv/bin/python -m chatuskoti_evals.cli run-ablation \
   --backend torch \
   --epochs 10 \
   --seeds 3 \
-  --num-workers 0 \
-  --output artifacts/strong_v1_2_torch/ablations
-```
-
-### Run the new calibration sweep
-
-```bash
-.venv/bin/python -m chatuskoti_evals.cli run-calibration \
-  --backend torch \
-  --epochs 10 \
-  --seeds 3 \
-  --num-workers 0 \
-  --output artifacts/strong_v1_2_torch/calibration
-```
-
-### Or generate the whole V1.2 release bundle
-
-```bash
-bash scripts/run_torch_release_bundle.sh
+  --output artifacts/strong_v1_3_torch/ablations
 ```
 
 ## Repo Tour
@@ -208,7 +189,7 @@ The repo is easier to navigate if you think of it in layers.
 
 - [chatuskoti_evals/reporting.py](chatuskoti_evals/reporting.py): markdown reports, JSON outputs, and SVG plots
 - [chatuskoti_evals/cli.py](chatuskoti_evals/cli.py): package entrypoint
-- [scripts/run_torch_release_bundle.sh](scripts/run_torch_release_bundle.sh): end-to-end V1.2 release bundle generation
+- [scripts/run_torch_bundle.sh](scripts/run_torch_bundle.sh): end-to-end bundle generation (auto-detects version, stages artifacts in git)
 - [scripts/verify_release_bundle.py](scripts/verify_release_bundle.py): verifies the generated release artifacts
 
 ### 5. Evidence and docs
@@ -258,7 +239,7 @@ Natural next steps for the repo include:
 - growing the canonical failure set, especially around harder `both` and `neither`-style cases
 - comparing against a wider range of evaluator baselines, not only a binary gate
 - learning or calibrating thresholds from accumulated offline evidence more systematically
-- extending the checked-in V1.2 torch bundle with broader reruns or stronger hardware-backed replications
+- extending the checked-in V1.3 torch bundle with broader reruns or stronger hardware-backed replications
 - testing whether the same decision framing transfers to agentic tool-use or code-generation benchmarks
 
 That future would make the project more like a broader Chatuskoti-style eval benchmark. The current repo is the earlier and more concrete step: a benchmark-specific framework for making research-loop decisions less naive.

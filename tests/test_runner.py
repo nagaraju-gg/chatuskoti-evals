@@ -35,7 +35,7 @@ class RunnerTests(unittest.TestCase):
                 self.assertIn("R", records[0])
                 self.assertIn("V", records[0])
                 self.assertEqual(manifest["schema_version"], 2)
-                self.assertEqual(manifest["package_version"], "1.2.0")
+                self.assertEqual(manifest["package_version"], "1.3.0")
             finally:
                 if previous is None:
                     os.environ.pop("CHATUSKOTI_RUN_LOG_PATH", None)

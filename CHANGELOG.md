@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 - 2026-06-03
+
+- Added coupling analysis module with sliding-window anti-coupling detection and lead-time measurement (Goodhart/Pyrrhic trajectory warnings vs snapshot pre-check).
+- Added `lead-time` CLI command to run multi-step progressive-degradation trajectories and report lead steps N.
+- Added axis-level ablation names (`t_only`, `t_r`, `t_v`, `t_r_v`) for the independence table in §4 of the Vec3 paper.
+- Added annotation framework (`AnnotationStore`, `extract-cases` CLI) for human rater ground-truth studies.
+- Updated test assertions to `1.3.0`.
+
 ## 1.2.0 - 2026-04-09
 
 - Added a threshold calibration sweep bundle and `run-calibration` CLI command for nearby-threshold robustness checks.

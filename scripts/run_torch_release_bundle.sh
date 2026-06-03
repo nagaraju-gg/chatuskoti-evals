@@ -8,7 +8,8 @@ else
   PYTHON_BIN="python3"
 fi
 
-BUNDLE_ROOT="artifacts/strong_v1_2_torch"
+VERSION=$(grep -m1 '^version = ' "$ROOT_DIR/pyproject.toml" | sed 's/version = "\(.*\)"/\1/')
+BUNDLE_ROOT="artifacts/strong_v${VERSION}_torch"
 
 "$PYTHON_BIN" -m unittest discover -s tests -v
 

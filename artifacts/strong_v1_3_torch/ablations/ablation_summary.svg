@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="40" y="24" font-size="18" font-family="Helvetica">Matched Failure Cases by Ablation</text>
+<line x1="40" y1="280" x2="680" y2="280" stroke="#333"/>
+<rect x="40.0" y="40.0" width="42" height="240.0" fill="#2563eb"/>
+<text x="40.0" y="296" font-size="11" font-family="Helvetica">full</text>
+<text x="40.0" y="36.0" font-size="11" font-family="Helvetica">4</text>
+<rect x="111.1" y="160.0" width="42" height="120.0" fill="#2563eb"/>
+<text x="111.1" y="296" font-size="11" font-family="Helvetica">no_reliability</text>
+<text x="111.1" y="156.0" font-size="11" font-family="Helvetica">2</text>
+<rect x="182.2" y="160.0" width="42" height="120.0" fill="#2563eb"/>
+<text x="182.2" y="296" font-size="11" font-family="Helvetica">no_validity</text>
+<text x="182.2" y="156.0" font-size="11" font-family="Helvetica">2</text>
+<rect x="253.3" y="40.0" width="42" height="240.0" fill="#2563eb"/>
+<text x="253.3" y="296" font-size="11" font-family="Helvetica">no_wisdom</text>
+<text x="253.3" y="36.0" font-size="11" font-family="Helvetica">4</text>
+<rect x="324.4" y="40.0" width="42" height="240.0" fill="#2563eb"/>
+<text x="324.4" y="296" font-size="11" font-family="Helvetica">no_spread_gate</text>
+<text x="324.4" y="36.0" font-size="11" font-family="Helvetica">4</text>
+<rect x="395.6" y="280.0" width="42" height="0.0" fill="#2563eb"/>
+<text x="395.6" y="296" font-size="11" font-family="Helvetica">t_only</text>
+<text x="395.6" y="276.0" font-size="11" font-family="Helvetica">0</text>
+<rect x="466.7" y="160.0" width="42" height="120.0" fill="#2563eb"/>
+<text x="466.7" y="296" font-size="11" font-family="Helvetica">t_r</text>
+<text x="466.7" y="156.0" font-size="11" font-family="Helvetica">2</text>
+<rect x="537.8" y="160.0" width="42" height="120.0" fill="#2563eb"/>
+<text x="537.8" y="296" font-size="11" font-family="Helvetica">t_v</text>
+<text x="537.8" y="156.0" font-size="11" font-family="Helvetica">2</text>
+<rect x="608.9" y="40.0" width="42" height="240.0" fill="#2563eb"/>
+<text x="608.9" y="296" font-size="11" font-family="Helvetica">t_r_v</text>
+<text x="608.9" y="36.0" font-size="11" font-family="Helvetica">4</text>
+</svg>

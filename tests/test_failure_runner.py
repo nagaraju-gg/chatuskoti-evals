@@ -30,7 +30,7 @@ class FailureRunnerTests(unittest.TestCase):
                 self.assertEqual(records[0]["schema_version"], 1)
                 self.assertIn("axis_components", records[0])
                 self.assertEqual(manifest["schema_version"], 2)
-                self.assertEqual(manifest["package_version"], "1.2.0")
+                self.assertEqual(manifest["package_version"], "1.3.0")
                 self.assertIn("benchmark_spec_id", manifest)
             finally:
                 if previous is None:
@@ -42,7 +42,7 @@ class FailureRunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tempdir:
             root = Path(tempdir) / "ablation_run"
             summaries = run_ablation_bundle(root, ExperimentConfig(), seeds=1)
-            self.assertEqual(len(summaries), 5)
+            self.assertEqual(len(summaries), 9)
             self.assertTrue((root / "summary.md").exists())
             self.assertTrue((root / "summary.json").exists())
             self.assertTrue((root / "manifest.json").exists())

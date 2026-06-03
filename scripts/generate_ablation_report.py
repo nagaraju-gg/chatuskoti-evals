@@ -10,7 +10,7 @@ from chatuskoti_evals.reporting import write_bar_chart_svg
 from chatuskoti_evals.resolver import resolve_vec3
 
 
-ABLATIONS = ("full", "no_reliability", "no_validity", "no_wisdom", "no_spread_gate")
+ABLATIONS = ("full", "no_reliability", "no_validity", "no_wisdom", "no_spread_gate", "t_only", "t_r", "t_v", "t_r_v")
 
 
 def main() -> int:

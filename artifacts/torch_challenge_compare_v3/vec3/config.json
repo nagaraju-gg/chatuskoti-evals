@@ -1,8 +1,0 @@
-{
-  "controller": "vec3",
-  "depth": 1.0,
-  "max_iterations": 4,
-  "mode": "challenge",
-  "n_seeds": 1,
-  "width": 1
-}
