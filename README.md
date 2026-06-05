@@ -1,5 +1,10 @@
 # Chatuskoti Evals
 
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.10+-blue)
+![Benchmark](https://img.shields.io/badge/benchmark-CIFAR--100%20%2B%20ResNet--18-orange)
+
 > **One-liner:** A benchmark-specific evaluation framework that decomposes research-loop decisions into three axes (Truthness, Reliability, Validity) and maps them to controller actions — so not every "metric up" gets the same merge decision.
 
 ## 1. The Problem
@@ -54,6 +59,15 @@ The strongest checked-in evidence is the **V1.3 torch bundle** at `artifacts/str
 | Coupling-angle lead time | **2-step lead** on simulator (`goodhart_descent` trajectory) |
 
 **Honest boundary:** The torch backend (ResNet-18/CIFAR-100) does **not yet reproduce** the 2-step coupling-angle lead time — V degradation isn't gradual enough. This is tracked in `docs/release/next_steps.md`.
+
+### Key Charts
+
+**Ablation proof — all three axes necessary**  
+![Ablation summary](artifacts/strong_v1_3_torch/ablations/ablation_summary.svg)
+
+**TRV trajectories & coupling angle (simulator — 2-step lead)**  
+![TRV trajectory](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/trv_trajectory.svg)  
+![Coupling angle](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/coupling_angle.svg)
 
 ## 4. Getting Started
 
