@@ -125,3 +125,19 @@ For a credible first public drop, include:
 - the annotation cases
 - the ablation summary
 - one short limitations section that says this is a benchmark-specific calibrated evaluation framework
+
+## 8. Open targets
+
+### Torch lead-time replication (high priority)
+
+The simulator produces a clean 2-step coupling-angle lead time on a controlled `goodhart_descent` trajectory. The current torch backend (ResNet-18 / CIFAR-100) does not yet reproduce this — the V degradation is not gradual enough for the detector to fire before the Goodhart pre-check.
+
+**Target**: Find or construct a torch trajectory where V degrades gradually across steps (small persistent negative ΔV) so the continuous coupling-angle detector warns before the snapshot pre-check.
+
+**Approaches to try**:
+- Longer training runs with smaller LR perturbations
+- Different action families (label smoothing, weight decay schedules, gradient clipping ramps)
+- Controlled proxy-decoupling schedules injected into the training loop
+- Architecture/dataset pairs with smoother loss landscapes
+
+This is tracked as the primary open target for the next bundle release.

@@ -2,16 +2,16 @@
   "coupling_results": [
     {
       "goodhart_warning": true,
-      "pyrrhic_warning": true,
-      "t_r_coupling": -1.0,
-      "t_v_coupling": -1.0,
+      "pyrrhic_warning": false,
+      "t_r_coupling": 0.0,
+      "t_v_coupling": -0.5,
       "window_end": 5
     },
     {
       "goodhart_warning": false,
       "pyrrhic_warning": false,
-      "t_r_coupling": 0.0,
-      "t_v_coupling": 0.0,
+      "t_r_coupling": -0.33333,
+      "t_v_coupling": -0.33333,
       "window_end": 6
     },
     {
@@ -24,8 +24,8 @@
     {
       "goodhart_warning": false,
       "pyrrhic_warning": false,
-      "t_r_coupling": 0.0,
-      "t_v_coupling": 0.0,
+      "t_r_coupling": 1.0,
+      "t_v_coupling": 1.0,
       "window_end": 8
     },
     {
@@ -73,27 +73,27 @@
   ],
   "deltas": [
     {
-      "delta_R": 0.38606999999999997,
-      "delta_T": -0.24853000000000003,
-      "delta_V": 0.41625999999999996,
+      "delta_R": -0.1653,
+      "delta_T": -0.06531999999999999,
+      "delta_V": 0.00031000000000003247,
       "step": 1
     },
     {
-      "delta_R": 0.02709000000000006,
-      "delta_T": 0.0,
-      "delta_V": 0.28798999999999997,
+      "delta_R": 0.17691999999999997,
+      "delta_T": -0.36233999999999994,
+      "delta_V": 0.00046999999999997044,
       "step": 2
     },
     {
-      "delta_R": 0.08808000000000005,
-      "delta_T": 0.0,
-      "delta_V": 0.10575000000000001,
+      "delta_R": 0.045420000000000016,
+      "delta_T": -0.16415000000000002,
+      "delta_V": 0.0018700000000000383,
       "step": 3
     },
     {
-      "delta_R": 0.022989999999999955,
-      "delta_T": 0.0,
-      "delta_V": 0.05259999999999998,
+      "delta_R": -0.004630000000000023,
+      "delta_T": -0.04700000000000004,
+      "delta_V": -0.035640000000000005,
       "step": 4
     },
     {
@@ -129,13 +129,13 @@
     {
       "delta_R": 0.0,
       "delta_T": 0.0,
-      "delta_V": -0.060229999999999895,
+      "delta_V": 0.0,
       "step": 10
     },
     {
       "delta_R": 0.0,
       "delta_T": 0.0,
-      "delta_V": -0.09579000000000004,
+      "delta_V": 0.0,
       "step": 11
     },
     {
@@ -158,10 +158,10 @@
     }
   ],
   "first_coupling_warning_step": 5,
-  "goodhart_precheck_fired": true,
+  "goodhart_precheck_fired": false,
   "goodhart_warning_fired": true,
-  "lead_time_steps": -5,
-  "precheck_step": 0,
+  "lead_time_steps": null,
+  "precheck_step": null,
   "tau": 0.4,
   "total_steps": 15,
   "window": 5

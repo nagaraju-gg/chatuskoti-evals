@@ -1,245 +1,169 @@
 # Chatuskoti Evals
 
-`Chatuskoti Evals` is a benchmark-specific evaluation framework for research loops on `CIFAR-100 + ResNet-18`.
+> **One-liner:** A benchmark-specific evaluation framework that decomposes research-loop decisions into three axes (Truthness, Reliability, Validity) and maps them to controller actions — so not every "metric up" gets the same merge decision.
 
-In plain language: an eval is a repeatable way to decide whether a change is actually good enough to trust. This repo focuses on a failure mode that shows up everywhere in AI work: a run, model tweak, or tool policy can make a number go up while still being the wrong thing to merge, ship, or learn from.
+## 1. The Problem
 
-That is the core problem here. Instead of asking only "did the metric improve?", this repo asks a more useful control question:
+Standard evals ask "which system scored higher?" This repo asks: **"what should the loop do next?"**
 
-- is the result actually better
-- is it stable enough to trust
-- is it valid enough to compare to the baseline at all
+In research loops (automated model search, agentic tooling, benchmark maintenance), a metric improvement often means the wrong thing to merge:
 
-Those distinctions matter for technical readers because many expensive mistakes in research loops look like progress at first:
+| Failure mode | What a metric-only gate sees | What actually happened |
+|---|---|---|
+| Pyrrhic gain | accuracy ↑ | run unstable, not reproducible |
+| Metric-gamed | accuracy ↑ | exploited proxy/harness, not real progress |
+| Incomparable | accuracy ↑ | eval regime changed, before/after invalid |
+| Broken result | accuracy ↓ | damage, not just "no improvement" |
 
-- a training change improves top-line accuracy but makes the run unstable
-- a search policy finds a better score by exploiting a proxy
-- an evaluation setting changes and makes before/after numbers incomparable
-- a controller keeps merging superficially positive results that later turn into wasted iteration
+A binary gate collapses all four into "adopt" or "reject." **That's the bug this repo fixes.**
 
-The repo name comes from [Chatuskoti](https://en.wikipedia.org/wiki/Catu%E1%B9%A3ko%E1%B9%ADi), a four-way logic lens. In this codebase that idea is used in a practical way, not a philosophical one: it is a way to avoid collapsing several importantly different outcomes into the same "good" bucket.
+## 2. The Solution: Three Axes → Resolver Actions
 
-## What This Repo Is
+`Chatuskoti Evals` decomposes every candidate run into three independent axes:
 
-This is not a general autonomous researcher. It is a calibrated evaluator plus controller logic for one concrete benchmark setting.
+| Axis | Symbol | Question |
+|---|---|---|
+| Truthness | `T` | Did the anchored benchmark metric actually improve? |
+| Reliability | `R` | Did the run stay stable and reproducible enough to trust? |
+| Validity | `V` | Is the gain meaningful (not gamed, not regime-invalid)? |
 
-Today the repo provides:
+These map to **five resolver actions** that a binary gate would collapse:
 
-- a benchmark adapter for a simulated backend and a real torch backend
-- a three-axis evaluator over `truthness`, `reliability`, and `validity`
-- resolver actions such as `adopt`, `hold`, `reframe`, `reject`, `rollback`, and `keep_going`
-- canonical failure cases designed to separate clean gains from pyrrhic, gamed, broken, and incomparable outcomes
-- comparison reports, ablations, calibration sweeps, plots, manifests, and release scripts
+| Outcome type | Metric | T/R/V profile | Action | Why |
+|---|---|---|---|---|
+| Clean gain | ↑ | T+, R+, V+ | `adopt` | Better, stable, comparable |
+| Pyrrhic gain | ↑ | T+, R−, V± | `hold` | Improvement not yet trustworthy |
+| Metric-gamed | ↑ | T+, R±, V− | `reframe` | Loop learned wrong lesson |
+| Broken result | ↓ | T−, R±, V± | `rollback` | This is damage |
+| Incomparable | ↑ | T±, R±, V− (regime) | `reframe` | Comparison itself invalid |
+| (no signal) | — | — | `keep_going` | Continue searching |
 
-The narrow claim is the important one: if your controller only sees the headline metric, it will often make the wrong research-loop decision.
+**Core claim:** not every positive metric delta is the same kind of outcome, so not every positive metric delta deserves the same control action.
 
-## Why AI Researchers And Tool Builders Should Care
+## 3. Evidence (v1.3.0)
 
-Many evals answer "which system scored higher?" This repo is about a different question: "what should the loop do next?"
+The strongest checked-in evidence is the **V1.3 torch bundle** at `artifacts/strong_v1_3_torch/`:
 
-That matters if you care about:
+| Claim | Result |
+|---|---|
+| Canonical failure benchmark | **4/4** cases matched |
+| Binary gate on same cases | would adopt **3/4** bad cases |
+| Vec3 resolver routes them | `hold`, `reframe`, `rollback` correctly |
+| Challenge comparison | binary reaches higher metric by taking merges benchmark says should **not merge** |
+| Ablation proof | T-only: 0/4, any two axes: 2/4, full T/R/V: **4/4** |
+| Coupling-angle lead time | **2-step lead** on simulator (`goodhart_descent` trajectory) |
 
-- automated model search, where unstable wins can poison the next baseline
-- agentic tooling, where a score bump may come from exploiting the harness rather than improving the behavior you wanted
-- benchmark maintenance, where silent eval changes create fake progress
-- reproducible research, where a result is only useful if someone can explain and regenerate it
+**Honest boundary:** The torch backend (ResNet-18/CIFAR-100) does **not yet reproduce** the 2-step coupling-angle lead time — V degradation isn't gradual enough. This is tracked in `docs/release/next_steps.md`.
 
-Put differently: this repo treats evaluation as decision support, not only as measurement.
+## 4. Getting Started
 
-## The Core Idea
-
-`Chatuskoti Evals` decomposes a candidate run into three axes:
-
-| Axis | Question | Why it matters |
-| --- | --- | --- |
-| `truthness` (`T`) | Did the anchored benchmark metric actually improve? | Keeps the ordinary "better or worse" question explicit. |
-| `reliability` (`R`) | Did the run stay stable and reproducible enough to trust? | Separates clean gains from pyrrhic ones. |
-| `validity` (`V`) | Is the gain meaningful, rather than gamed or comparison-invalid? | Separates real progress from Goodhart-style or eval-regime failures. |
-
-Those axes map to controller actions that a binary metric gate would collapse together:
-
-| Outcome type | What a metric-only gate sees | `Vec3` action | Why |
-| --- | --- | --- | --- |
-| Clean gain | metric up | `adopt` | Better, stable, and comparable |
-| Pyrrhic gain | metric up | `hold` | Improvement is not yet trustworthy |
-| Metric-gamed gain | metric up | `reframe` | The loop learned the wrong lesson |
-| Broken result | metric down | `rollback` | This is damage, not just failure to improve |
-| Incomparable gain | metric up | `reframe` | The comparison itself is invalid |
-
-If you want the shortest framing of the project, it is this:
-
-> not every positive metric delta is the same kind of outcome, so not every positive metric delta deserves the same control action
-
-## What The Repo Demonstrates Today
-
-The main evidence in the repo is a controlled benchmark story, not a broad leaderboard claim.
-
-The strongest checked-in torch-backed evidence is now the V1.3 bundle under [`artifacts/strong_v1_3_torch`](artifacts/strong_v1_3_torch). In that bundle:
-
-- the canonical failure benchmark matches `4/4` intended cases
-- binary evaluation would adopt `3/4` benchmark-aware bad cases
-- `Vec3` routes those cases to `hold`, `reframe`, and `rollback`
-- the challenge comparison shows binary reaching the higher metric by taking merges the benchmark says should not be merged
-
-That is the current headline claim this repo can support well:
-
-- structured evaluation preserves benchmark validity better than a metric-only gate on this benchmark
-
-## Why Version 1.3 Matters
-
-Version `1.3.0` extends the bundle with a lead-time trajectory analysis and annotation framework for human-rater ground-truth studies. It also adds coupling analysis for detecting early anti-coupling signals before they become pyrrhic.
-
-`1.3.0` adds:
-
-- lead-time analysis with sliding-window anti-coupling detection
-- annotation framework (`AnnotationStore`, `extract-cases` CLI) for human rater ground-truth studies
-- axis-level ablation names for the independence table
-- calibrated against `PYTHON_BIN` consistent with prior releases
-
-The important nuance is that `1.3.0` does not broaden the scientific claim. It strengthens the same benchmark story with richer trajectory evidence and ground-truth annotation support.
-
-## How To Read The Repo
-
-If you are new to the project, do not start with the CLI.
-
-Start in this order:
-
-1. Read the canonical failure benchmark: [`artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md`](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md)
-2. Look at the annotation cases: [`artifacts/strong_v1_3_torch/annotation_cases.csv`](artifacts/strong_v1_3_torch/annotation_cases.csv)
-3. Check whether the extra axes matter: [`artifacts/strong_v1_3_torch/ablations/summary.md`](artifacts/strong_v1_3_torch/ablations/summary.md)
-4. Then read the release/demo framing: [`docs/release_demo.md`](docs/release_demo.md)
-
-Supporting docs:
-
-- plain-language overview: [docs/why_four_states.md](docs/why_four_states.md)
-- guided walkthrough: [docs/demo.md](docs/demo.md)
-- release runbook: [docs/next_steps.md](docs/next_steps.md)
-- torch backend notes: [docs/real_backend.md](docs/real_backend.md)
-
-## Quickstart
-
-### Check the environment
+### Install
 
 ```bash
-.venv/bin/python scripts/check_torch_env.py
+git clone https://github.com/your-org/chatuskoti-evals.git
+cd chatuskoti-evals
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
 ```
 
-### Run the full evidence bundle
+### Quickstart
 
 ```bash
+# Verify environment
+.venv/bin/python scripts/check_torch_env.py
+
+# Run full evidence bundle (generates lead-time, annotations, ablations)
 bash scripts/run_torch_bundle.sh
 ```
 
-This generates lead-time analysis, annotation cases, and ablation reports under `artifacts/strong_v{version}_torch/` and automatically stages them in git (replacing any previously tracked bundle).
+### Individual Commands
 
-### Run individual pieces
-
-Lead-time analysis:
 ```bash
+# Lead-time analysis
 .venv/bin/python -m chatuskoti_evals.cli lead-time \
-  --backend torch \
-  --epochs 10 \
-  --seeds 3 \
-  --iterations 15 \
-  --action stochastic_depth_high \
-  --window 5 \
-  --tau 0.4 \
+  --backend torch --epochs 10 --seeds 3 --iterations 15 \
+  --action stochastic_depth_high --window 5 --tau 0.4 \
   --output artifacts/strong_v1_3_torch/lead_time
-```
 
-Extract annotation cases:
-```bash
+# Extract annotation cases
 .venv/bin/python -m chatuskoti_evals.cli extract-cases \
   --bundle artifacts/strong_v1_3_torch \
   --output artifacts/strong_v1_3_torch/annotation_cases.csv
-```
 
-Ablation bundle:
-```bash
+# Ablation bundle
 .venv/bin/python -m chatuskoti_evals.cli run-ablation \
-  --backend torch \
-  --epochs 10 \
-  --seeds 3 \
+  --backend torch --epochs 10 --seeds 3 --cooldown 30 \
   --output artifacts/strong_v1_3_torch/ablations
 ```
 
-## Repo Tour
+## 5. How to Read This Repo (Newcomer Order)
 
-The repo is easier to navigate if you think of it in layers.
+1. **Canonical failure benchmark** — `artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md`
+2. **Annotation cases** — `artifacts/strong_v1_3_torch/annotation_cases.csv`
+3. **Ablation proof** — `artifacts/strong_v1_3_torch/ablations/summary.md`
+4. **Release/demo framing** — `docs/release_demo.md`
 
-### 1. Benchmark and backends
+**Supporting docs:**
+- Plain-language overview: `docs/why_four_states.md`
+- Guided walkthrough: `docs/demo.md`
+- Torch backend notes: `docs/real_backend.md`
+- Open targets: `docs/release/next_steps.md`
 
-- [chatuskoti_evals/benchmark.py](chatuskoti_evals/benchmark.py): benchmark adapter interface plus the simulator-backed benchmark logic
-- [chatuskoti_evals/torch_backend.py](chatuskoti_evals/torch_backend.py): real PyTorch execution path for `CIFAR-100 + ResNet-18`
-- [chatuskoti_evals/scenarios.py](chatuskoti_evals/scenarios.py): canonical failure cases and benchmark scenarios
+## 6. Reference
 
-### 2. Scoring and decision logic
+### Repo Architecture (5 Layers)
 
-- [chatuskoti_evals/scoring.py](chatuskoti_evals/scoring.py): computes `T/R/V`, detector outputs, and fired signals
-- [chatuskoti_evals/resolver.py](chatuskoti_evals/resolver.py): turns scores into actions such as `adopt`, `hold`, or `reframe`
-- [chatuskoti_evals/models.py](chatuskoti_evals/models.py): typed result objects, manifests, and report payloads
+| Layer | Files | Responsibility |
+|---|---|---|
+| **Benchmark & Backends** | `benchmark.py`, `torch_backend.py`, `scenarios.py` | Simulator + PyTorch (ResNet-18/CIFAR-100) execution, canonical failure cases |
+| **Scoring & Decision** | `scoring.py`, `coupling.py`, `resolver.py`, `models.py` | T/R/V computation, sliding-window coupling detector, resolver actions, typed results |
+| **Loop Orchestration** | `proposals.py`, `runner.py`, `wisdom.py` | Next-action proposals, comparison/ablation/calibration runners, offline memory |
+| **Reporting & Release** | `reporting.py`, `cli.py`, `scripts/run_torch_bundle.sh`, `scripts/verify_release_bundle.py` | Markdown/JSON/SVG outputs, CLI entrypoint, end-to-end bundle gen + git staging |
+| **Evidence & Docs** | `artifacts/`, `docs/` | Checked-in bundles, conceptual docs, release notes |
 
-### 3. Loop orchestration
-
-- [chatuskoti_evals/proposals.py](chatuskoti_evals/proposals.py): proposes the next action in the loop
-- [chatuskoti_evals/runner.py](chatuskoti_evals/runner.py): runs comparisons, failure sets, ablations, and calibration bundles
-- [chatuskoti_evals/wisdom.py](chatuskoti_evals/wisdom.py): simple offline memory for action-family outcomes
-
-### 4. Reporting and release workflow
-
-- [chatuskoti_evals/reporting.py](chatuskoti_evals/reporting.py): markdown reports, JSON outputs, and SVG plots
-- [chatuskoti_evals/cli.py](chatuskoti_evals/cli.py): package entrypoint
-- [scripts/run_torch_bundle.sh](scripts/run_torch_bundle.sh): end-to-end bundle generation (auto-detects version, stages artifacts in git)
-- [scripts/verify_release_bundle.py](scripts/verify_release_bundle.py): verifies the generated release artifacts
-
-### 5. Evidence and docs
-
-- [artifacts/index.md](artifacts/index.md): entrypoint for checked-in evidence
-- [docs/why_four_states.md](docs/why_four_states.md): conceptual explanation
-- [docs/release_demo.md](docs/release_demo.md): intended public reading order
-
-## How This Compares With Other Evals
-
-This repo is not trying to replace general benchmark suites. It is doing a narrower job.
-
-Compared with common eval styles:
+### Comparison vs Other Eval Styles
 
 | Eval style | Typical question | What this repo adds |
-| --- | --- | --- |
-| Pass/fail or leaderboard evals | "Which system scored higher?" | Distinguishes several kinds of "higher score" before turning that score into a control action. |
-| Regression tests | "Did we break something obvious?" | Adds structured handling for unstable, gamed, and incomparable apparent wins. |
-| Safety or adversarial evals | "Can the system fail in dangerous ways?" | Focuses on benchmark-aware decision errors inside the research loop itself. |
-| Process or trajectory evals | "What happened during the run?" | Compresses process evidence into explicit `T/R/V` axes and resolver actions. |
+|---|---|---|
+| Pass/fail / leaderboard | "Which scored higher?" | Distinguishes kinds of higher score before control action |
+| Regression tests | "Did we break something?" | Structured handling for unstable, gamed, incomparable wins |
+| Safety / adversarial | "Can it fail dangerously?" | Focuses on benchmark-aware decision errors in the research loop |
+| Process / trajectory | "What happened during run?" | Compresses trajectory → T/R/V axes + coupling-angle lead signal |
 
-The practical difference is that `Chatuskoti Evals` sits between a benchmark and a controller. It is not only measuring outcomes; it is deciding how those outcomes should change the next state of the loop.
+**Positioning:** Sits between a benchmark and a controller. Not just measurement — decision support.
 
-## Scope And Limits
+### Scope & Limits
 
-The current project should be understood as:
+**This repo IS:**
+- Benchmark-specific (CIFAR-100 + ResNet-18)
+- Calibrated, evaluation-first, interpretable, reproducible
 
-- benchmark-specific
-- calibrated to `CIFAR-100 + ResNet-18`
-- evaluation-first
-- interpretable and reproducible
+**This repo is NOT (yet):**
+- Universal eval layer for all AI agents
+- Proof Vec3 beats binary gates on every benchmark
+- Learned/domain-general research controller
+- Replacement for broader task suites
+- Confirmed torch replication of simulator's 2-step coupling lead
 
-It should not yet be presented as:
+## 7. Meta
 
-- a universal eval layer for all AI agents
-- proof that `Vec3` beats binary gates on every benchmark
-- a learned, domain-general research controller
-- a replacement for broader task suites or end-to-end agent benchmarks
+### Version Status: 1.3.0
+- Three-axis evaluator (T/R/V from trajectories)
+- Resolver actions: `adopt`, `hold`, `reframe`, `rollback`, `keep_going`
+- Canonical failure benchmark: 4/4 matched
+- Coupling-angle detector (sign-product metric, 2-step simulator lead)
+- Ablation framework (proves all 3 axes necessary)
+- Dual backends: simulator + torch
 
-That narrowness is a feature. The repo is trying to make one hard decision problem legible before generalizing it.
+### Planned 1.3.1
+- Continuous coupling angle: `atan2(ΔV, ΔT)` + circular mean, warning on angle < −π/6 OR sign-coupling < −τ
+- V guarantee: `eval_regime_changed` → V clamped ≤ −0.5
 
-## Future Scope
+### Contributing
+1. Open issue before significant changes
+2. Run `python scripts/verify_release_bundle.py`
+3. Keep changes benchmark-scoped (intentional narrowness)
 
-Natural next steps for the repo include:
-
-- expanding beyond one benchmark family while keeping strict benchmark definitions
-- growing the canonical failure set, especially around harder `both` and `neither`-style cases
-- comparing against a wider range of evaluator baselines, not only a binary gate
-- learning or calibrating thresholds from accumulated offline evidence more systematically
-- extending the checked-in V1.3 torch bundle with broader reruns or stronger hardware-backed replications
-- testing whether the same decision framing transfers to agentic tool-use or code-generation benchmarks
-
-That future would make the project more like a broader Chatuskoti-style eval benchmark. The current repo is the earlier and more concrete step: a benchmark-specific framework for making research-loop decisions less naive.
+### License
+MIT — see [LICENSE](LICENSE)

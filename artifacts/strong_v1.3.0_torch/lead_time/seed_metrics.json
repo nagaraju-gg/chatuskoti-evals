@@ -1,0 +1,1112 @@
+{
+  "iteration_1": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "797e937db057",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.59393,
+      "grad_norm_std": 0.60184,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.4194,
+      "proxy_metrics": {
+        "calibration": 0.99746,
+        "proxy_metric_corr": 0.5192
+      },
+      "run_id": "797e937db057-seed0",
+      "seed": 0,
+      "train_loss": 2.23634,
+      "train_val_gap": 0.08052,
+      "val_loss": 2.31686,
+      "weight_distance": 0.3631
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "797e937db057",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.60134,
+      "grad_norm_std": 0.56308,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.4184,
+      "proxy_metrics": {
+        "calibration": 0.99486,
+        "proxy_metric_corr": 0.50126
+      },
+      "run_id": "797e937db057-seed1",
+      "seed": 1,
+      "train_loss": 2.23194,
+      "train_val_gap": 0.08512,
+      "val_loss": 2.31706,
+      "weight_distance": 0.36656
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "797e937db057",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.56551,
+      "grad_norm_std": 0.5913,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.4084,
+      "proxy_metrics": {
+        "calibration": 0.99994,
+        "proxy_metric_corr": 0.49853
+      },
+      "run_id": "797e937db057-seed2",
+      "seed": 2,
+      "train_loss": 2.28231,
+      "train_val_gap": 0.09897,
+      "val_loss": 2.38128,
+      "weight_distance": 0.32425
+    }
+  ],
+  "iteration_10": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_11": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_12": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_13": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_14": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_15": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_2": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "b9ca6fe9dde8",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.49774,
+      "grad_norm_std": 0.60967,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3952,
+      "proxy_metrics": {
+        "calibration": 0.98536,
+        "proxy_metric_corr": 0.50631
+      },
+      "run_id": "b9ca6fe9dde8-seed0",
+      "seed": 0,
+      "train_loss": 2.53912,
+      "train_val_gap": 0.02398,
+      "val_loss": 2.5631,
+      "weight_distance": 0.32768
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "b9ca6fe9dde8",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.56247,
+      "grad_norm_std": 0.567,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.4252,
+      "proxy_metrics": {
+        "calibration": 0.98088,
+        "proxy_metric_corr": 0.49819
+      },
+      "run_id": "b9ca6fe9dde8-seed1",
+      "seed": 1,
+      "train_loss": 2.42212,
+      "train_val_gap": 0.03188,
+      "val_loss": 2.454,
+      "weight_distance": 0.41466
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "b9ca6fe9dde8",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.53806,
+      "grad_norm_std": 0.61346,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.414,
+      "proxy_metrics": {
+        "calibration": 0.97846,
+        "proxy_metric_corr": 0.50184
+      },
+      "run_id": "b9ca6fe9dde8-seed2",
+      "seed": 2,
+      "train_loss": 2.46427,
+      "train_val_gap": 0.03007,
+      "val_loss": 2.49434,
+      "weight_distance": 0.37217
+    }
+  ],
+  "iteration_3": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "e0afb04b4021",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.46842,
+      "grad_norm_std": 0.61275,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.4066,
+      "proxy_metrics": {
+        "calibration": 0.95645,
+        "proxy_metric_corr": 0.50015
+      },
+      "run_id": "e0afb04b4021-seed0",
+      "seed": 0,
+      "train_loss": 2.64616,
+      "train_val_gap": 0.00336,
+      "val_loss": 2.64952,
+      "weight_distance": 0.29862
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "e0afb04b4021",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.49359,
+      "grad_norm_std": 0.61612,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3976,
+      "proxy_metrics": {
+        "calibration": 0.97169,
+        "proxy_metric_corr": 0.50024
+      },
+      "run_id": "e0afb04b4021-seed1",
+      "seed": 1,
+      "train_loss": 2.66513,
+      "train_val_gap": 0.01349,
+      "val_loss": 2.67862,
+      "weight_distance": 0.5019
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "e0afb04b4021",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4694,
+      "grad_norm_std": 0.60659,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.405,
+      "proxy_metrics": {
+        "calibration": 0.96153,
+        "proxy_metric_corr": 0.51214
+      },
+      "run_id": "e0afb04b4021-seed2",
+      "seed": 2,
+      "train_loss": 2.65228,
+      "train_val_gap": -0.00266,
+      "val_loss": 2.64962,
+      "weight_distance": 0.3923
+    }
+  ],
+  "iteration_4": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "bf50b241fbba",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4645,
+      "grad_norm_std": 0.60167,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3962,
+      "proxy_metrics": {
+        "calibration": 0.96001,
+        "proxy_metric_corr": 0.50271
+      },
+      "run_id": "bf50b241fbba-seed0",
+      "seed": 0,
+      "train_loss": 2.70026,
+      "train_val_gap": -0.0075,
+      "val_loss": 2.69277,
+      "weight_distance": 0.26789
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "bf50b241fbba",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.46289,
+      "grad_norm_std": 0.58538,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3926,
+      "proxy_metrics": {
+        "calibration": 0.96925,
+        "proxy_metric_corr": 0.49912
+      },
+      "run_id": "bf50b241fbba-seed1",
+      "seed": 1,
+      "train_loss": 2.69291,
+      "train_val_gap": -0.01191,
+      "val_loss": 2.681,
+      "weight_distance": 0.41341
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "bf50b241fbba",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.48285,
+      "grad_norm_std": 0.62408,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3916,
+      "proxy_metrics": {
+        "calibration": 0.96284,
+        "proxy_metric_corr": 0.50667
+      },
+      "run_id": "bf50b241fbba-seed2",
+      "seed": 2,
+      "train_loss": 2.72658,
+      "train_val_gap": -0.01881,
+      "val_loss": 2.70777,
+      "weight_distance": 0.32363
+    }
+  ],
+  "iteration_5": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.32025
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.34364
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.29811
+    }
+  ],
+  "iteration_6": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_7": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_8": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ],
+  "iteration_9": [
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4494,
+      "grad_norm_std": 0.59707,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.9645,
+        "proxy_metric_corr": 0.49609
+      },
+      "run_id": "2adab87f27cd-seed0",
+      "seed": 0,
+      "train_loss": 2.74006,
+      "train_val_gap": -0.02551,
+      "val_loss": 2.71455,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.44672,
+      "grad_norm_std": 0.56143,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3842,
+      "proxy_metrics": {
+        "calibration": 0.96217,
+        "proxy_metric_corr": 0.50517
+      },
+      "run_id": "2adab87f27cd-seed1",
+      "seed": 1,
+      "train_loss": 2.73392,
+      "train_val_gap": -0.02804,
+      "val_loss": 2.70588,
+      "weight_distance": 0.0
+    },
+    {
+      "detector_inputs": {
+        "backend": "torch",
+        "recipe_hash": "2adab87f27cd",
+        "regularization_impl": "residual_stochastic_depth"
+      },
+      "eval_hash": "5386cd090d02",
+      "grad_norm_mean": 1.4456,
+      "grad_norm_std": 0.60495,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11227812,
+      "primary_metric": 0.3894,
+      "proxy_metrics": {
+        "calibration": 0.95803,
+        "proxy_metric_corr": 0.47825
+      },
+      "run_id": "2adab87f27cd-seed2",
+      "seed": 2,
+      "train_loss": 2.76359,
+      "train_val_gap": -0.03163,
+      "val_loss": 2.73196,
+      "weight_distance": 0.0
+    }
+  ]
+}
