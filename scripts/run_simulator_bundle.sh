@@ -8,8 +8,7 @@ else
   PYTHON_BIN="python3"
 fi
 
-VERSION=$(grep -m1 '^version = ' "$ROOT_DIR/pyproject.toml" | sed 's/version = "\(.*\)"/\1/')
-DEFAULT_BUNDLE="artifacts/strong_v${VERSION}_simulator"
+DEFAULT_BUNDLE="artifacts/strong_simulator"
 BUNDLE_ROOT="${1:-$DEFAULT_BUNDLE}"
 LEAD_ITERATIONS="${2:-10}"
 TRAJ_TRAJECTORIES="${3:-500}"
@@ -21,7 +20,7 @@ mkdir -p "$BUNDLE_ROOT"
 
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  Simulator Evidence Bundle (v$VERSION)"
+echo "  Simulator Evidence Bundle"
 echo "=============================================="
 echo "Bundle root: $BUNDLE_ROOT"
 echo "  lead-time:           $LEAD_ITERATIONS iterations"

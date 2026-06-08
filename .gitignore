@@ -5,6 +5,6 @@ logs/
 data/
 artifacts/*
 !artifacts/index.md
-!artifacts/strong_v*/
+!artifacts/strong_*/
 *.egg-info/
 .DS_Store

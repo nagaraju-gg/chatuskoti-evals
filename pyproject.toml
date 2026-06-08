@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chatuskoti-evals"
-version = "1.2.0"
+version = "1.3.0"
 description = "Benchmark-specific evaluator for deciding whether research gains are real, stable, and decision-ready."
 requires-python = ">=3.11"
 

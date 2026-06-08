@@ -8,8 +8,7 @@ else
   PYTHON_BIN="python3"
 fi
 
-VERSION=$(grep -m1 '^version = ' "$ROOT_DIR/pyproject.toml" | sed 's/version = "\(.*\)"/\1/')
-DEFAULT_BUNDLE="artifacts/strong_v${VERSION}_torch"
+DEFAULT_BUNDLE="artifacts/strong_torch"
 BUNDLE_ROOT="${1:-$DEFAULT_BUNDLE}"
 ITERATIONS="${2:-15}"
 SEEDS="${3:-3}"
@@ -20,7 +19,7 @@ mkdir -p "$BUNDLE_ROOT"
 
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  Torch Evidence Bundle (v$VERSION)"
+echo "  Torch Evidence Bundle"
 echo "=============================================="
 echo "Bundle root: $BUNDLE_ROOT"
 TRAIN_MIN_PER_SEED=5
