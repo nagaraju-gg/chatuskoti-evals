@@ -97,10 +97,16 @@ bash scripts/run_simulator_bundle.sh
 ### Individual Commands
 
 ```bash
-# Lead-time analysis
+# Lead-time analysis (simulator: fast validation)
+.venv/bin/python -m chatuskoti_evals.cli lead-time \
+  --backend simulator --iterations 10 \
+  --action stochastic_depth_high --window auto --tau auto \
+  --output artifacts/lead_time_sim
+
+# Lead-time analysis (torch: real ResNet-18/CIFAR-100)
 .venv/bin/python -m chatuskoti_evals.cli lead-time \
   --backend torch --epochs 10 --seeds 3 --iterations 15 \
-  --action stochastic_depth_high --window 5 --tau 0.4 \
+  --action stochastic_depth_high --window auto --tau auto \
   --output artifacts/strong_v1_3_torch/lead_time
 
 # Extract annotation cases
