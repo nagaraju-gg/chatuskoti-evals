@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+<rect width="720" height="320" fill="#ffffff"/>
+<text x="40" y="24" font-size="18" font-family="Helvetica">TRV Trajectory (Progressive Goodhart Approach)</text>
+<line x1="40" y1="280" x2="680" y2="280" stroke="#333"/>
+<line x1="40" y1="40" x2="40" y2="280" stroke="#333"/>
+<polyline fill="none" stroke="#1d4ed8" stroke-width="3" points="40.0,47.5 111.1,99.7 182.2,99.7 253.3,99.7 324.4,99.7 395.6,99.7 466.7,99.7 537.8,99.7 608.9,99.7 680.0,99.7"/>
+<text x="540" y="32" font-size="12" font-family="Helvetica" fill="#1d4ed8">T</text>
+<polyline fill="none" stroke="#dc2626" stroke-width="3" points="40.0,161.5 111.1,72.8 182.2,66.8 253.3,47.8 324.4,42.1 395.6,42.1 466.7,42.1 537.8,42.1 608.9,42.1 680.0,42.1"/>
+<text x="540" y="50" font-size="12" font-family="Helvetica" fill="#dc2626">R</text>
+<polyline fill="none" stroke="#059669" stroke-width="3" points="40.0,277.9 111.1,167.9 182.2,127.9 253.3,104.6 324.4,93.5 395.6,93.5 466.7,93.5 537.8,93.5 608.9,93.5 680.0,93.5"/>
+<text x="540" y="68" font-size="12" font-family="Helvetica" fill="#059669">V</text>
+</svg>

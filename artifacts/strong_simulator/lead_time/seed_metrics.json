@@ -1,0 +1,262 @@
+{
+  "iteration_1": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 3.43437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.68129,
+      "proxy_metrics": {
+        "calibration": 0.17802,
+        "proxy_metric_corr": 0.09802
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 1.2306,
+      "train_val_gap": 0.45863,
+      "val_loss": 1.68923,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_10": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.84905,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.39,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.09863,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_2": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 4.53437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.69993,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 1.1372,
+      "train_val_gap": 0.56863,
+      "val_loss": 1.70583,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_3": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.63437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.71857,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 1.0438,
+      "train_val_gap": 0.67863,
+      "val_loss": 1.72243,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_4": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.73721,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.9504,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.65903,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_5": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.75585,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.857,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.56563,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_6": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.77449,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.7636,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.47223,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_7": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.79313,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.6702,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.37883,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_8": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.81177,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.5768,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.28543,
+      "weight_distance": 0.64813
+    }
+  ],
+  "iteration_9": [
+    {
+      "detector_inputs": {
+        "action_name": "stochastic_depth_high",
+        "scheduler_ready": false,
+        "tags": "hypercoherence,proxy_decoupling,unstable_regularization"
+      },
+      "eval_hash": "e9f78e8e1589",
+      "grad_norm_mean": 5.93437,
+      "grad_norm_std": 0.01911,
+      "model_family": "resnet18",
+      "objective_family": "cross_entropy",
+      "param_count": 11200000,
+      "primary_metric": 0.83041,
+      "proxy_metrics": {
+        "calibration": 0.03,
+        "proxy_metric_corr": 0.05
+      },
+      "run_id": "stochastic_depth_high-seed0",
+      "seed": 0,
+      "train_loss": 0.4834,
+      "train_val_gap": 0.70863,
+      "val_loss": 1.19203,
+      "weight_distance": 0.64813
+    }
+  ]
+}
