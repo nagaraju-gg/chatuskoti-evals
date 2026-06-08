@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import argparse
 from dataclasses import replace
 from pathlib import Path
@@ -14,6 +15,7 @@ from chatuskoti_evals.runner import (
     run_lead_time_analysis,
     run_single_loop,
 )
+
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -70,6 +72,39 @@ def build_parser() -> argparse.ArgumentParser:
     lead_time.add_argument("--num-workers", type=int, default=2)
     lead_time.add_argument("--mode", choices=["default", "calibration", "challenge"], default="default")
     lead_time.add_argument(
+        "--ablation",
+        choices=[
+            "full", "no_reliability", "no_validity", "no_wisdom", "no_spread_gate",
+            "no_coherence", "no_comparability", "no_goodhart",
+            "t_only", "t_r", "t_v", "t_r_v",
+        ],
+        default="full",
+    )
+
+    traj_pred = subparsers.add_parser(
+        "trajectory-prediction",
+        help="Generate trajectory dataset, train predictors, and evaluate trajectory vs endpoint forecasting",
+        description="Generates a dataset of (trajectory, action, next-delta) by running many simulator "
+                    "loops, then compares two linear predictors (endpoint-only vs trajectory-aware) on "
+                    "a held-out set split by trajectory. Reports MSE and runs an endpoint-matched pair test.",
+    )
+    traj_pred.add_argument("--output", type=Path, default=Path("artifacts/trajectory_prediction"))
+    traj_pred.add_argument("--trajectories", type=int, default=50, help="Number of simulator trajectories to generate")
+    traj_pred.add_argument("--iterations", type=int, default=6, help="Steps per trajectory")
+    traj_pred.add_argument("--window", type=int, default=3, help="Trajectory window k (number of past Vec3 states)")
+    traj_pred.add_argument("--ridge-alpha", type=float, default=1.0, help="Ridge regularization strength")
+    traj_pred.add_argument("--seeds", type=int, default=3, help="Seeds per trajectory step")
+    traj_pred.add_argument("--backend", choices=["simulator", "torch"], default="simulator")
+    traj_pred.add_argument("--data-dir", type=Path, default=Path("data"))
+    traj_pred.add_argument("--device", default="auto")
+    traj_pred.add_argument("--epochs", type=int, default=3)
+    traj_pred.add_argument("--batch-size", type=int, default=128)
+    traj_pred.add_argument("--eval-batch-size", type=int, default=256)
+    traj_pred.add_argument("--num-workers", type=int, default=2)
+    traj_pred.add_argument("--cooldown", type=float, default=0.0, help="Seconds to sleep every N trajectories (suggest 300 for torch backend)")
+    traj_pred.add_argument("--cooldown-interval", type=int, default=2, help="Apply cooldown every N trajectories")
+    traj_pred.add_argument("--mode", choices=["default", "calibration", "challenge"], default="default")
+    traj_pred.add_argument(
         "--ablation",
         choices=[
             "full", "no_reliability", "no_validity", "no_wisdom", "no_spread_gate",
@@ -187,6 +222,43 @@ def main() -> None:
             warn = result.get("first_coupling_warning_step")
             print(f"Lead time: coupling warning at step {warn}, pre-check at step {pre}, lead = {lt} steps")
             print(f"Wrote lead-time analysis to {args.output}")
+            return
+        if args.command == "trajectory-prediction":
+            from chatuskoti_evals.evaluation.trajectory_prediction import (
+                evaluate_predictors,
+                generate_trajectory_dataset,
+                save_dataset,
+                write_prediction_charts,
+            )
+            dataset = generate_trajectory_dataset(
+                cfg,
+                n_trajectories=args.trajectories,
+                iterations=args.iterations,
+                seeds_per_run=args.seeds,
+                cooldown=args.cooldown,
+                cooldown_interval=args.cooldown_interval,
+            )
+            result = evaluate_predictors(
+                dataset,
+                window=args.window,
+                ridge_alpha=args.ridge_alpha,
+            )
+            args.output.mkdir(parents=True, exist_ok=True)
+            (args.output / "prediction_result.json").write_text(
+                json.dumps(result, indent=2, sort_keys=True),
+                encoding="utf-8",
+            )
+            save_dataset(dataset, args.output / "trajectory_dataset.json")
+            chart_path = write_prediction_charts(result, args.output)
+            _imp = result.get("improvement_pct", {})
+            pair = result.get("pair_test", {})
+            print(f"Trajectory prediction: endpoint MSE={result['endpoint_mse']['total']}, "
+                  f"trajectory MSE={result['trajectory_mse']['total']}, "
+                  f"improvement={_imp.get('total', 0)}%")
+            if pair.get("n_pairs_found", 0) > 0:
+                print(f"  Endpoint-matched pairs found: {pair['n_pairs_found']}")
+            print(f"Wrote trajectory prediction artifacts to {args.output}")
+            print(f"  Chart: {chart_path}")
             return
     except ImportError as exc:
         parser.exit(status=1, message=f"{exc}\n")

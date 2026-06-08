@@ -69,6 +69,7 @@ def run_single_loop(
     output_root: Path,
     *,
     progress: RunProgressTracker | None = None,
+    seeds: list[int] | None = None,
 ) -> LoopResult:
     detector_cfg = cfg.ablation.apply(cfg.detector)
     adapter = create_benchmark_adapter(cfg)
@@ -79,7 +80,7 @@ def run_single_loop(
 
     wisdom_path = controller_root / "wisdom_store.json"
     wisdom = WisdomStore.load(wisdom_path) if cfg.ablation.wisdom_enabled else WisdomStore()
-    seeds = list(range(loop_cfg.n_seeds))
+    seeds = list(range(loop_cfg.n_seeds)) if seeds is None else seeds
     progress = progress or RunProgressTracker(total_runs=_loop_run_count(loop_cfg))
     run_log_path = _run_log_path()
 
