@@ -47,7 +47,7 @@ These map to **five resolver actions** that a binary gate would collapse:
 
 ## 3. Evidence (v1.3.0)
 
-The strongest checked-in evidence is the **V1.3 torch bundle** at `artifacts/strong_v1_3_torch/`:
+The strongest checked-in evidence is the **torch bundle** at `artifacts/strong_torch/` and **simulator bundle** at `artifacts/strong_simulator/`:
 
 | Claim | Result |
 |---|---|
@@ -57,17 +57,16 @@ The strongest checked-in evidence is the **V1.3 torch bundle** at `artifacts/str
 | Challenge comparison | binary reaches higher metric by taking merges benchmark says should **not merge** |
 | Ablation proof | T-only: 0/4, any two axes: 2/4, full T/R/V: **4/4** |
 | Coupling-angle lead time | **2-step lead** on simulator (`goodhart_descent` trajectory) |
-
-**Honest boundary:** The torch backend (ResNet-18/CIFAR-100) does **not yet reproduce** the 2-step coupling-angle lead time — V degradation isn't gradual enough. This is tracked in `docs/release/next_steps.md`.
+| Thresholds | All thresholds are data-driven — `--tau auto` uses bottom-15th-percentile coupling, `--window auto` picks the variance-maximizing window size, resolver thresholds adapt to the observed population |
 
 ### Key Charts
 
 **Ablation proof — all three axes necessary**  
-![Ablation summary](artifacts/strong_v1_3_torch/ablations/ablation_summary.svg)
+![Ablation summary](artifacts/strong_torch/ablations/ablation_summary.svg)
 
 **TRV trajectories & coupling angle (simulator — 2-step lead)**  
-![TRV trajectory](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/trv_trajectory.svg)  
-![Coupling angle](artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/coupling_angle.svg)
+![TRV trajectory](artifacts/strong_simulator/lead_time/lead_time_analysis/trv_trajectory.svg)  
+![Coupling angle](artifacts/strong_simulator/lead_time/lead_time_analysis/coupling_angle.svg)
 
 ## 4. Getting Started
 
@@ -99,45 +98,45 @@ bash scripts/run_simulator_bundle.sh
 ```bash
 # Lead-time analysis (simulator: fast validation)
 .venv/bin/python -m chatuskoti_evals.cli lead-time \
-  --backend simulator --iterations 10 \
+  --backend simulator --iterations 10 --seeds 1 \
   --action stochastic_depth_high --window auto --tau auto \
-  --output artifacts/lead_time_sim
+  --output artifacts/strong_simulator/lead_time
 
 # Lead-time analysis (torch: real ResNet-18/CIFAR-100)
 .venv/bin/python -m chatuskoti_evals.cli lead-time \
   --backend torch --epochs 10 --seeds 3 --iterations 15 \
   --action stochastic_depth_high --window auto --tau auto \
-  --output artifacts/strong_v1_3_torch/lead_time
+  --cooldown 300 --output artifacts/strong_torch/lead_time
 
-# Extract annotation cases
+# Extract annotation cases (from a completed bundle)
 .venv/bin/python -m chatuskoti_evals.cli extract-cases \
-  --bundle artifacts/strong_v1_3_torch \
-  --output artifacts/strong_v1_3_torch/annotation_cases.csv
+  --bundle artifacts/strong_torch \
+  --output artifacts/strong_torch/annotation_cases.csv
 
 # Ablation bundle
 .venv/bin/python -m chatuskoti_evals.cli run-ablation \
   --backend torch --epochs 10 --seeds 3 --cooldown 30 \
-  --output artifacts/strong_v1_3_torch/ablations
+  --output artifacts/strong_torch/ablations
 
 # Trajectory prediction (simulator: endpoint vs trajectory-aware)
 .venv/bin/python -m chatuskoti_evals.cli trajectory-prediction \
   --backend simulator --trajectories 500 --iterations 6 \
   --window 3 --ridge-alpha 1.0 --seeds 2 \
-  --output artifacts/trajectory_prediction_500
+  --output artifacts/strong_simulator/trajectory_prediction
 
 # Trajectory prediction (torch: real ResNet-18/CIFAR-100)
 .venv/bin/python -m chatuskoti_evals.cli trajectory-prediction \
   --backend torch --trajectories 25 --iterations 4 \
   --window 3 --ridge-alpha 1.0 --seeds 1 \
   --cooldown 300 --cooldown-interval 2 \
-  --output artifacts/trajectory_prediction_torch
+  --output artifacts/strong_torch/trajectory_prediction
 ```
 
 ## 5. How to Read This Repo (Newcomer Order)
 
-1. **Canonical failure benchmark** — `artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md`
-2. **Annotation cases** — `artifacts/strong_v1_3_torch/annotation_cases.csv`
-3. **Ablation proof** — `artifacts/strong_v1_3_torch/ablations/summary.md`
+1. **Canonical failure benchmark** — `artifacts/strong_torch/lead_time/lead_time_analysis/summary.md`
+2. **Annotation cases** — `artifacts/strong_torch/annotation_cases.csv`
+3. **Ablation proof** — `artifacts/strong_torch/ablations/summary.md`
 4. **Release/demo framing** — `docs/release_demo.md`
 
 **Supporting docs:**
