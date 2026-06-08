@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 
 from chatuskoti_evals.config import DetectorConfig
-from chatuskoti_evals.models import RunMetrics
-from chatuskoti_evals.resolver import resolve_vec3
+from chatuskoti_evals.models import RunMetrics, RunScore, Vec3
+from chatuskoti_evals.resolver import adaptive_detector_config, resolve_vec3
 from chatuskoti_evals.scoring import score_run_metrics
 
 
@@ -186,3 +186,32 @@ class ScoringTests(unittest.TestCase):
         self.assertIn("validity", run_score.axis_components)
         self.assertIn("seed_variance", run_score.axis_components["reliability"])
         self.assertIn("proxy_alignment", run_score.axis_components["validity"])
+
+
+class AdaptiveDetectorConfigTests(unittest.TestCase):
+    def test_returns_base_config_for_short_history(self) -> None:
+        base = DetectorConfig()
+        result = adaptive_detector_config([], base)
+        self.assertIs(result, base)
+
+    def test_computes_thresholds_from_population(self) -> None:
+        scores = [
+            RunScore(
+                mean=Vec3(truthness=t, reliability=r, validity=v),
+                std=Vec3(truthness=0.0, reliability=0.0, validity=0.0),
+                mag=1.0, spread=s, fired_signals=[], raw_detectors={}, axis_components={},
+            )
+            for t, r, v, s in [
+                (0.1, 0.8, 0.9, 0.05),
+                (0.2, 0.6, 0.7, 0.10),
+                (0.3, 0.4, 0.5, 0.15),
+                (0.4, 0.2, 0.3, 0.25),
+                (0.5, 0.0, 0.1, 0.40),
+            ]
+        ]
+        base = DetectorConfig()
+        adaptive = adaptive_detector_config(scores, base)
+        self.assertGreater(adaptive.adopt_truth_threshold, 0.2)
+        self.assertLess(adaptive.validity_threshold, 0.7)
+        self.assertLess(adaptive.max_spread, 0.40)
+        self.assertNotEqual(adaptive, base)

@@ -29,7 +29,7 @@ from chatuskoti_evals.core.models import (
 from chatuskoti_evals.progress import RunProgressContext, RunProgressTracker
 from chatuskoti_evals.proposals import ProposalEngine
 from chatuskoti_evals.cli.reporting import ReportGenerator, aggregate_failure_results, write_lead_time_report
-from chatuskoti_evals.evaluation.resolver import resolve_binary, resolve_vec3
+from chatuskoti_evals.evaluation.resolver import adaptive_detector_config, resolve_binary, resolve_vec3
 from chatuskoti_evals.scenarios import get_failure_injection_set
 from chatuskoti_evals.evaluation.scoring import score_run_metrics
 from chatuskoti_evals.core.wisdom import WisdomStore
@@ -413,8 +413,8 @@ def run_lead_time_analysis(
     seeds: int = 1,
     iterations: int = 10,
     goodhart_action: str = "stochastic_depth_high",
-    window: int = 5,
-    tau: float = 0.4,
+    window: int | str = 5,
+    tau: float | str = 0.4,
     cooldown: float = 0.0,
 ) -> dict[str, object]:
     import sys
@@ -534,7 +534,8 @@ def run_lead_time_analysis(
                 print(f"\r     cooldown {_remaining_cd}s", end="", flush=True)
             print()
 
-    lead_result = measure_lead_time(history_scores, window=window, tau=tau, cfg=detector_cfg)
+    adaptive_cfg = adaptive_detector_config(history_scores, detector_cfg)
+    lead_result = measure_lead_time(history_scores, window=window, tau=tau, cfg=adaptive_cfg)
 
     analysis_dir = output_root / "lead_time_analysis"
     analysis_dir.mkdir(parents=True, exist_ok=True)

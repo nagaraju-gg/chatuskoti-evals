@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from chatuskoti_evals.coupling import (
+from chatuskoti_evals.core.coupling import (
+    _select_window,
     compute_coupling_over_history,
     find_goodhart_precheck_step,
     measure_lead_time,
@@ -103,3 +104,72 @@ class CouplingTests(unittest.TestCase):
         self.assertEqual(deltas, [])
         coupling = sliding_window_coupling([], window=5, tau=0.4)
         self.assertEqual(coupling, [])
+
+    def test_auto_tau_adapts_to_anti_coupled_data(self) -> None:
+        all_deltas = []
+        for i in range(1, 15):
+            if i < 8:
+                tv = -0.03
+                tr = -0.02
+            else:
+                tv = 0.02
+                tr = 0.01
+            all_deltas.append({"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": tv})
+        results = sliding_window_coupling(all_deltas, window=3, tau="auto")
+        self.assertTrue(len(results) > 0)
+        self.assertTrue(any(r["goodhart_warning"] for r in results))
+        self.assertIn("tau_tv", results[0])
+        self.assertIn("tau_tr", results[0])
+        self.assertLess(results[0]["tau_tv"], 0)
+
+    def test_auto_tau_fires_no_warnings_on_aligned_data(self) -> None:
+        all_deltas = [
+            {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": 0.02}
+            for i in range(1, 15)
+        ]
+        results = sliding_window_coupling(all_deltas, window=3, tau="auto")
+        self.assertTrue(len(results) > 0)
+        self.assertTrue(all(not r["goodhart_warning"] for r in results))
+        self.assertTrue(all(not r["pyrrhic_warning"] for r in results))
+
+    def test_select_window_picks_reasonable_size(self) -> None:
+        all_deltas = [
+            {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": -0.03}
+            for i in range(1, 15)
+        ]
+        window = _select_window(all_deltas)
+        self.assertGreaterEqual(window, 2)
+        self.assertLessEqual(window, 7)
+
+    def test_measure_lead_time_auto_window(self) -> None:
+        scores = [
+            make_score(0.0, 0.0, 0.5),
+            make_score(0.02, 0.01, 0.48),
+            make_score(0.04, 0.01, 0.45),
+            make_score(0.06, 0.0, 0.40),
+            make_score(0.08, -0.01, 0.35),
+            make_score(0.10, -0.02, 0.28),
+            make_score(0.12, -0.03, 0.20),
+            make_score(0.14, -0.04, 0.10, signals=["hyper_coherence", "proxy_decoupling"]),
+        ]
+        result = measure_lead_time(scores, window="auto", tau=0.0)
+        self.assertTrue(result["goodhart_warning_fired"])
+        self.assertIsInstance(result["window"], int)
+        self.assertGreaterEqual(result["window"], 2)
+
+    def test_measure_lead_time_auto_tau(self) -> None:
+        scores = [
+            make_score(0.0, 0.0, 0.5),
+            make_score(0.02, 0.01, 0.52),
+            make_score(0.04, 0.02, 0.48),
+            make_score(0.06, 0.01, 0.45),
+            make_score(0.08, 0.0, 0.35),
+            make_score(0.10, -0.01, 0.28),
+            make_score(0.08, -0.02, 0.22),
+            make_score(0.06, -0.03, 0.15, signals=["hyper_coherence", "proxy_decoupling"]),
+        ]
+        result = measure_lead_time(scores, window=3, tau="auto")
+        self.assertTrue(result["goodhart_warning_fired"])
+        self.assertIsInstance(result["tau"], dict)
+        self.assertIn("tv", result["tau"])
+        self.assertIn("tr", result["tau"])

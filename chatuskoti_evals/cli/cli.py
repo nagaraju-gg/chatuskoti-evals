@@ -17,6 +17,18 @@ from chatuskoti_evals.runner import (
 )
 
 
+def _auto_or_float(val: str) -> float | str:
+    if val.lower() == "auto":
+        return "auto"
+    return float(val)
+
+
+def _auto_or_int(val: str) -> int | str:
+    if val.lower() == "auto":
+        return "auto"
+    return int(val)
+
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -59,8 +71,8 @@ def build_parser() -> argparse.ArgumentParser:
     lead_time.add_argument("--output", type=Path, default=Path("artifacts/lead_time"))
     lead_time.add_argument("--iterations", type=int, default=10)
     lead_time.add_argument("--action", default="stochastic_depth_high", choices=[a.name for a in ACTION_INDEX.values()])
-    lead_time.add_argument("--window", type=int, default=5)
-    lead_time.add_argument("--tau", type=float, default=0.4)
+    lead_time.add_argument("--window", type=_auto_or_int, default=5, help="Sliding window size, or 'auto' to select from data")
+    lead_time.add_argument("--tau", type=_auto_or_float, default=0.4, help="Coupling warning threshold, or 'auto' for 15th-percentile")
     lead_time.add_argument("--seeds", type=int, default=1)
     lead_time.add_argument("--cooldown", type=float, default=0.0, help="Seconds to wait between iterations (default 0, suggest 300 for torch backend)")
     lead_time.add_argument("--backend", choices=["simulator", "torch"], default="simulator")

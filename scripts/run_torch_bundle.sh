@@ -28,15 +28,15 @@ ITER_TRAIN_MIN=$((TRAIN_MIN_PER_SEED * SEEDS))
 ITER_COOLDOWN_MIN=$((COOLDOWN / 60))
 ITER_TOTAL_MIN=$((ITER_TRAIN_MIN + ITER_COOLDOWN_MIN))
 TOTAL_MIN=$((ITER_TOTAL_MIN * ITERATIONS))
-echo "  $ITERATIONS iters × $SEEDS seeds × ${TRAIN_MIN_PER_SEED}min + ${COOLDOWN}s cooldown = ~${TOTAL_MIN}min (~$((TOTAL_MIN / 60))h)"
-echo "  Yields $ITERATIONS trajectory steps = $ITERATIONS annotation cases for the ground-truth study"
+echo "  $ITERATIONS iters × $SEEDS seeds × ${TRAIN_MIN_PER_SEED}min + ${COOLDOWN}s cooldown = ~${TOTAL_MIN}min (~$((TOTAL_MIN / 60))h) [lead-time only]"
+echo "  Plus trajectory-prediction (25 trajectories × 4 iters × 1 seed) after ablation"
 echo ""
 
 # ──────────────────────────────────────────────────
 # 1. Lead-time analysis
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  STEP 1/4: Lead-time analysis"
+echo "  STEP 1/5: Lead-time analysis"
 echo "  Iterations: $ITERATIONS | Seeds: $SEEDS | Cooldown: ${COOLDOWN}s"
 echo "  Est: ~${TOTAL_MIN}min (~$((TOTAL_MIN / 60))h)"
 echo "=============================================="
@@ -55,8 +55,8 @@ echo ""
   --seeds "$SEEDS" \
   --iterations "$ITERATIONS" \
   --action stochastic_depth_high \
-  --window 5 \
-  --tau 0.4 \
+  --window auto \
+  --tau auto \
   --cooldown "$COOLDOWN" \
   --output "$BUNDLE_ROOT/lead_time"
 
@@ -68,7 +68,7 @@ echo ""
 # 2. Extract annotation cases
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  STEP 2/4: Extract annotation cases"
+echo "  STEP 2/5: Extract annotation cases"
 echo "  Cooldown ${COOLDOWN}s before next step"
 echo "=============================================="
 echo ""
@@ -88,7 +88,7 @@ echo ""
 # 3. Ablation bundle (all axis variants)
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  STEP 3/4: Ablation bundle (axis variants)"
+echo "  STEP 3/5: Ablation bundle (axis variants)"
 echo "  Cooldown ${COOLDOWN}s before next step"
 echo "=============================================="
 echo ""
@@ -112,10 +112,43 @@ echo "Ablation bundle complete."
 echo ""
 
 # ──────────────────────────────────────────────────
-# 4. Stage artifacts in git (replaces old tracked bundle)
+# 4. Trajectory prediction (torch)
 # ──────────────────────────────────────────────────
 echo "=============================================="
-echo "  STEP 4/4: Stage artifacts in git"
+echo "  STEP 4/5: Trajectory prediction (torch)"
+echo "  Cooldown ${COOLDOWN}s before next step"
+echo "=============================================="
+echo ""
+
+echo "Waiting ${COOLDOWN}s before trajectory-prediction..."
+sleep "$COOLDOWN"
+
+"$PYTHON_BIN" -m chatuskoti_evals.cli trajectory-prediction \
+  --backend torch \
+  --data-dir "$ROOT_DIR/data" \
+  --device auto \
+  --epochs 10 \
+  --batch-size 128 \
+  --eval-batch-size 256 \
+  --num-workers 0 \
+  --trajectories 25 \
+  --iterations 4 \
+  --window 3 \
+  --ridge-alpha 1.0 \
+  --seeds 1 \
+  --cooldown "$COOLDOWN" \
+  --cooldown-interval 2 \
+  --output "$BUNDLE_ROOT/trajectory_prediction"
+
+echo ""
+echo "Trajectory prediction complete."
+echo ""
+
+# ──────────────────────────────────────────────────
+# 5. Stage artifacts in git (replaces old tracked bundle)
+# ──────────────────────────────────────────────────
+echo "=============================================="
+echo "  STEP 5/5: Stage artifacts in git"
 echo "=============================================="
 echo ""
 
@@ -125,10 +158,11 @@ echo "Staged: $BUNDLE_ROOT (replaced any previously tracked strong_v bundle)"
 
 echo ""
 echo "=============================================="
-echo "  All 4 steps complete."
+echo "  All 5 steps complete."
 echo "  Artifacts under: $BUNDLE_ROOT/"
-echo "    lead-time:   $BUNDLE_ROOT/lead_time/lead_time_analysis/"
-echo "    cases:       $BUNDLE_ROOT/annotation_cases.csv"
-echo "    ablations:   $BUNDLE_ROOT/ablations/summary.md"
+echo "    lead-time:           $BUNDLE_ROOT/lead_time/lead_time_analysis/"
+echo "    cases:               $BUNDLE_ROOT/annotation_cases.csv"
+echo "    ablations:           $BUNDLE_ROOT/ablations/summary.md"
+echo "    trajectory-pred:     $BUNDLE_ROOT/trajectory_prediction/"
 echo "=============================================="
 echo "  Next: git commit to save the updated artifacts."

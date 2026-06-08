@@ -87,8 +87,11 @@ pip install -e .
 # Verify environment
 .venv/bin/python scripts/check_torch_env.py
 
-# Run full evidence bundle (generates lead-time, annotations, ablations)
+# Run full torch evidence bundle (lead-time, annotations, ablations, trajectory-prediction)
 bash scripts/run_torch_bundle.sh
+
+# Run full simulator evidence bundle (lead-time, trajectory-prediction)
+bash scripts/run_simulator_bundle.sh
 ```
 
 ### Individual Commands
@@ -109,6 +112,19 @@ bash scripts/run_torch_bundle.sh
 .venv/bin/python -m chatuskoti_evals.cli run-ablation \
   --backend torch --epochs 10 --seeds 3 --cooldown 30 \
   --output artifacts/strong_v1_3_torch/ablations
+
+# Trajectory prediction (simulator: endpoint vs trajectory-aware)
+.venv/bin/python -m chatuskoti_evals.cli trajectory-prediction \
+  --backend simulator --trajectories 500 --iterations 6 \
+  --window 3 --ridge-alpha 1.0 --seeds 2 \
+  --output artifacts/trajectory_prediction_500
+
+# Trajectory prediction (torch: real ResNet-18/CIFAR-100)
+.venv/bin/python -m chatuskoti_evals.cli trajectory-prediction \
+  --backend torch --trajectories 25 --iterations 4 \
+  --window 3 --ridge-alpha 1.0 --seeds 1 \
+  --cooldown 300 --cooldown-interval 2 \
+  --output artifacts/trajectory_prediction_torch
 ```
 
 ## 5. How to Read This Repo (Newcomer Order)

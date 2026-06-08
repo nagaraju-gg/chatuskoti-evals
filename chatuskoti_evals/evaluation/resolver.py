@@ -1,7 +1,44 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from chatuskoti_evals.config import DetectorConfig
 from chatuskoti_evals.models import Resolution, RunMetrics, RunScore
+
+
+def _percentile(values: list[float], p: float) -> float:
+    if not values:
+        return 0.0
+    s = sorted(values)
+    k = (p / 100.0) * (len(s) - 1)
+    f = int(k)
+    c = k - f
+    if f + 1 < len(s):
+        return s[f] * (1 - c) + s[f + 1] * c
+    return s[f]
+
+
+def adaptive_detector_config(
+    history_scores: list[RunScore],
+    base_cfg: DetectorConfig | None = None,
+) -> DetectorConfig:
+    if base_cfg is None:
+        base_cfg = DetectorConfig()
+    if len(history_scores) < 3:
+        return base_cfg
+
+    truthnesses = [s.mean.truthness for s in history_scores]
+    reliabilities = [s.mean.reliability for s in history_scores]
+    validities = [s.mean.validity for s in history_scores]
+    spreads = [s.spread for s in history_scores]
+
+    return replace(
+        base_cfg,
+        adopt_truth_threshold=round(_percentile(truthnesses, 75), 4),
+        reliability_threshold=round(_percentile(reliabilities, 25), 4),
+        validity_threshold=round(_percentile(validities, 25), 4),
+        max_spread=round(_percentile(spreads, 90), 4),
+    )
 
 
 def resolve_vec3(run_score: RunScore, cfg: DetectorConfig) -> Resolution:
