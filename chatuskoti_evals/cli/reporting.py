@@ -496,13 +496,13 @@ def escape_xml(text: str) -> str:
 
 def write_coupling_angle_svg(
     path: Path,
-    coupling_results: list[dict[str, object]],
-    tau: float = 0.4,
+    coupling_results: list[dict],
+    tau: float | dict[str, float] = 0.4,
 ) -> None:
     width = 720
     height = 320
-    pad = 40
-    rpad = 120
+    pad = 60
+    rpad = 160
 
     if not coupling_results:
         path.write_text(
@@ -516,7 +516,16 @@ def write_coupling_angle_svg(
     tr_vals = [r["t_r_coupling"] for r in coupling_results]
     gw_flags = [r["goodhart_warning"] for r in coupling_results]
 
-    all_vals = tv_vals + tr_vals + [tau, -tau, 0.0]
+    tau_tv: float
+    tau_tr: float
+    if isinstance(tau, dict):
+        tau_tv = tau.get("tv", -0.4)
+        tau_tr = tau.get("tr", -0.4)
+    else:
+        tau_tv = -tau
+        tau_tr = -tau
+
+    all_vals = tv_vals + tr_vals + [tau_tv, tau_tr, 0.0]
     min_y = min(all_vals) - 0.15
     max_y = max(all_vals) + 0.15
     if abs(max_y - min_y) < 1e-6:
@@ -535,14 +544,19 @@ def write_coupling_angle_svg(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         f'<rect width="{width}" height="{height}" fill="#ffffff"/>',
         f'<text x="{pad}" y="24" font-family="Helvetica" font-size="18" font-weight="700">Coupling Angle Over Window</text>',
-        f'<text x="{pad}" y="44" font-family="Helvetica" font-size="12" fill="#666">T-V coupling (solid) crossing -τ triggers Goodhart warning</text>',
+        f'<text x="{pad}" y="44" font-family="Helvetica" font-size="12" fill="#666">T-V coupling (solid) crossing threshold triggers Goodhart warning</text>',
         f'<line x1="{pad}" y1="{height-pad}" x2="{width-rpad}" y2="{height-pad}" stroke="#333" stroke-width="1"/>',
         f'<line x1="{pad}" y1="{pad}" x2="{pad}" y2="{height-pad}" stroke="#333" stroke-width="1"/>',
     ]
 
-    tau_y = py(-tau)
-    lines.append(f'<line x1="{pad}" y1="{tau_y:.1f}" x2="{width-rpad}" y2="{tau_y:.1f}" stroke="#dc2626" stroke-dasharray="6,4" stroke-width="2"/>')
-    lines.append(f'<text x="{width-rpad+6}" y="{tau_y+4:.1f}" font-family="Helvetica" font-size="11" fill="#dc2626">-τ = {-tau}</text>')
+    tau_tv_y = py(tau_tv)
+    lines.append(f'<line x1="{pad}" y1="{tau_tv_y:.1f}" x2="{width-rpad}" y2="{tau_tv_y:.1f}" stroke="#dc2626" stroke-dasharray="6,4" stroke-width="2"/>')
+    lines.append(f'<text x="{width-rpad+6}" y="{tau_tv_y+4:.1f}" font-family="Helvetica" font-size="11" fill="#dc2626">T-V threshold = {tau_tv:.4f}</text>')
+
+    if abs(tau_tr - tau_tv) > 1e-6:
+        tau_tr_y = py(tau_tr)
+        lines.append(f'<line x1="{pad}" y1="{tau_tr_y:.1f}" x2="{width-rpad}" y2="{tau_tr_y:.1f}" stroke="#d97706" stroke-dasharray="6,4" stroke-width="1.5"/>')
+        lines.append(f'<text x="{width-rpad+6}" y="{tau_tr_y+18:.1f}" font-family="Helvetica" font-size="11" fill="#d97706">T-R threshold = {tau_tr:.4f}</text>')
 
     zero_y = py(0.0)
     lines.append(f'<line x1="{pad}" y1="{zero_y:.1f}" x2="{width-rpad}" y2="{zero_y:.1f}" stroke="#999" stroke-dasharray="3,3" stroke-width="1"/>')
@@ -575,7 +589,7 @@ def write_coupling_angle_svg(
         f'<line x1="{leg_x}" y1="{leg_y+36}" x2="{leg_x+24}" y2="{leg_y+36}" stroke="#059669" stroke-width="2" stroke-dasharray="4,3"/>',
         f'<text x="{leg_x+30}" y="{leg_y+40}" font-family="Helvetica" font-size="11">T-R coupling</text>',
         f'<circle cx="{leg_x+12}" cy="{leg_y+60}" r="6" fill="#dc2626" stroke="#fff" stroke-width="2"/>',
-        f'<text x="{leg_x+30}" y="{leg_y+64}" font-family="Helvetica" font-size="11">Warning ⚠</text>',
+        f'<text x="{leg_x+30}" y="{leg_y+64}" font-family="Helvetica" font-size="11">Warning</text>',
     ])
 
     lines.append("</svg>")
