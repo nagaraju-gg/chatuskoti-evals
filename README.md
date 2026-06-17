@@ -3,16 +3,6 @@
 # Chatuskoti Evals
 
 **A three-axis evaluation representation (Truthness, Reliability, Validity) that preserves distinctions scalar evaluation necessarily destroys.**
-
-[![CI](https://img.shields.io/github/actions/workflow/status/your-org/chatuskoti-evals/ci.yml?branch=main&logo=github&label=CI)](https://github.com/your-org/chatuskoti-evals/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/chatuskoti-evals?logo=pypi)](https://pypi.org/project/chatuskoti-evals/)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![DOI](https://img.shields.io/badge/DOI-10.xxxx%2Fzenodo.xxxxx-blue)](https://doi.org/10.xxxx/zenodo.xxxxx)
-[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
-[![Mypy](https://img.shields.io/badge/types-mypy-blue)](https://mypy-lang.org/)
-[![Benchmark](https://img.shields.io/badge/benchmark-CIFAR--100%20%2B%20ResNet--18-orange)]()
-
 </div>
 
 > **One-liner:** Not every positive metric delta deserves the same control action.
