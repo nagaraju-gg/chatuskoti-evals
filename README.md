@@ -1,44 +1,33 @@
-<div align="center">
-
 # Chatuskoti Evals
 
-**A three-axis evaluation representation (Truthness, Reliability, Validity) that preserves distinctions scalar evaluation necessarily destroys.**
-</div>
+**A three-axis evaluation framework for research-loop decisions.**
 
-> **One-liner:** Not every positive metric delta deserves the same control action.
+> Not every positive metric delta deserves the same control action.
 
-Chatuskoti Evals is a benchmark-specific evaluation framework for research loops on CIFAR-100 + ResNet-18.
-
-The repository explores a simple question:
+Chatuskoti Evals explores a simple representational question:
 
 > If two outcomes require different decisions, should they be represented as the same evaluation state?
 
-Most evaluation systems answer a single question:
+Most evaluation systems reduce outcomes to a single number. For many research-loop decisions, that is enough. But some outcomes share the same metric result while requiring different actions.
 
-> Did the metric improve?
+A gain may be:
 
-This repository argues that this is often insufficient for research-loop control because multiple action-distinct outcomes can share the same positive metric result.
+* genuinely useful,
+* unstable and not yet trustworthy,
+* produced by exploiting a proxy,
+* or incomparable to the baseline altogether.
 
-The name *Chatuskoti* is inspired by the classical four-way logical framework. Here the idea is used operationally: outcomes that appear identical under scalar evaluation may require fundamentally different actions.
+Scalar evaluation collapses these into the same outcome. Chatuskoti Evals represents them separately using three axes:
 
----
+* **Truthness (T):** Did the metric improve?
+* **Reliability (R):** Is the result stable and reproducible?
+* **Validity (V):** Is the comparison meaningful?
 
-## The Problem: Representational Collapse
+The framework is inspired by *Chatuskoti*, a classical four-way logical framework. Here the inspiration is practical rather than philosophical: outcomes that look identical under a scalar evaluation may require different decisions.
 
-Most evaluation systems map outcomes to a single scalar.
+The central claim of this repository is straightforward:
 
-| State           | T (Truthness) | Correct action |
-| --------------- | ------------- | -------------- |
-| Clean Pass      | +             | Accept         |
-| Pyrrhic Pass    | +             | Hold           |
-| Orthogonal Pass | +             | Reframe        |
-| Paradox         | +             | Audit          |
-
-All four states share the same positive truth signal but imply different decisions.
-
-**T alone is not action-sufficient.**
-
-A sufficient evaluation representation must distinguish states that require different actions. Scalar evaluation cannot—it collapses four distinct states into one bit.
+> An evaluation representation should preserve distinctions that matter for action.
 
 ---
 
