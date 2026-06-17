@@ -1,32 +1,24 @@
-# Failure Injection Set
+# Canonical Failure Case Set
 
-We include deliberately adversarial interventions to stress-test detectors.
+We include deliberately constructed cases to demonstrate representational insufficiency of scalar evaluation.
 
-This is a core part of the benchmark story, not an optional appendix. The failure injection set is designed to answer the reviewer question: "Does the controller only work on friendly examples?"
+This is a core part of the representation argument, not an optional appendix. The failure case set answers the reviewer question: "Couldn't a smarter binary threshold handle these cases?"
 
-## Injected interventions
+## Cases
 
-- `pyrrhic_probe`: pyrrhic win injection
-- `metric_gaming_probe`: metric-gaming / validity-failure injection
-- `broken_probe`: broken failure injection
-- `eval_tta`: incomparable evaluation injection
+- `dropout_high`: metric improves, reliability degrades (Pyrrhic Pass)
+- `stochastic_depth_high`: metric improves, validity collapses (Orthogonal Pass)
+- `high_lr`: metric and internals both damaged (Broken Failure)
+- `eval_tta`: metric improves under changed evaluation regime (Incomparable Pass)
 
-The named cases are defined in [chatuskoti_evals/scenarios.py](../chatuskoti_evals/scenarios.py).
-
-## Canonical demo cases
-
-These three should anchor the paper and short demo:
-
-1. Pyrrhic win example
-2. Metric-gaming example
-3. Recovery via Vec3 history
+Each case produces a positive metric delta (T > 0) but requires a distinct resolver action that scalar evaluation cannot distinguish.
 
 ## Scope
 
 Claims should stay narrow:
 
-- benchmark-specific calibrated prototype
-- evidence on one controlled benchmark
+- demonstration of representational insufficiency on one benchmark
+- concrete three-axis representation and its implementation
 - deterministic evaluation and interpretability outputs
 
-Avoid broad claims about all automated research systems until the wider calibration suite and broader benchmark coverage exist.
+Avoid broad claims about all automated research systems until wider validation exists.

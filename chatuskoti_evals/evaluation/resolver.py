@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from chatuskoti_evals.config import DetectorConfig
-from chatuskoti_evals.models import Resolution, RunMetrics, RunScore
+from chatuskoti_evals.core.config import DetectorConfig
+from chatuskoti_evals.core.models import Resolution, RunMetrics, RunScore
 
 
 def _percentile(values: list[float], p: float) -> float:
@@ -22,6 +22,7 @@ def adaptive_detector_config(
     history_scores: list[RunScore],
     base_cfg: DetectorConfig | None = None,
 ) -> DetectorConfig:
+    """Adapt detector thresholds based on history percentiles: adopt_truth at P75, others at P25/P90."""
     if base_cfg is None:
         base_cfg = DetectorConfig()
     if len(history_scores) < 3:
@@ -42,6 +43,7 @@ def adaptive_detector_config(
 
 
 def resolve_vec3(run_score: RunScore, cfg: DetectorConfig) -> Resolution:
+    """Map T/R/V to action: adopt/hold/reframe/rollback/keep_going based on config thresholds."""
     t = run_score.mean.truthness
     r = run_score.mean.reliability
     v = run_score.mean.validity
@@ -69,6 +71,7 @@ def resolve_vec3(run_score: RunScore, cfg: DetectorConfig) -> Resolution:
 
 
 def resolve_binary(candidate_metrics: list[RunMetrics], baseline_metrics: RunMetrics, cfg: DetectorConfig) -> Resolution:
+    """Scalar-only resolver: adopt if mean metric delta exceeds binary_metric_threshold, else reject."""
     mean_metric = sum(item.primary_metric for item in candidate_metrics) / len(candidate_metrics)
     metric_delta = mean_metric - baseline_metrics.primary_metric
     if metric_delta > cfg.binary_metric_threshold:

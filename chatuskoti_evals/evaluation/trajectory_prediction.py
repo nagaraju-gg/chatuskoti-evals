@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import tempfile
-from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from chatuskoti_evals.cli.actions import ACTION_LIBRARY
+_logger = logging.getLogger(__name__)
+
 from chatuskoti_evals.core.config import ExperimentConfig, LoopConfig
 from chatuskoti_evals.core.models import Vec3
+from chatuskoti_evals.evaluation.actions import ACTION_LIBRARY
 from chatuskoti_evals.evaluation.runner import run_single_loop
-
 
 _ACTION_FAMILIES = sorted({a.family for a in ACTION_LIBRARY})
 
@@ -31,6 +32,8 @@ class TrajectorySample:
     states: list[Vec3]
     action_family: str
     delta: Vec3
+    tv_product: float = 0.0
+    tr_product: float = 0.0
 
 
 @dataclass
@@ -81,7 +84,7 @@ def generate_trajectory_dataset(
         _elapsed = _time.time() - _t0
         remaining = n_trajectories - i - 1
         if cooldown > 0 and remaining > 0 and (i + 1) % cooldown_interval == 0:
-            print(f"  [{i+1}/{n_trajectories}] cooldown {cooldown}s ...", flush=True)
+            _logger.info("  [%d/%d] cooldown %ss ...", i + 1, n_trajectories, cooldown)
             _time.sleep(cooldown)
 
     return dataset
@@ -105,6 +108,8 @@ def _extract_trajectory(
                 states=states[: n + 1],
                 action_family=history[n].action_spec.family,
                 delta=delta,
+                tv_product=delta.truthness * delta.validity,
+                tr_product=delta.truthness * delta.reliability,
             )
         )
 
@@ -147,6 +152,7 @@ def _build_endpoint_features(
 def _build_trajectory_features(
     samples: list[TrajectorySample],
     window: int = 3,
+    include_coupling: bool = True,
 ) -> np.ndarray:
     rows = []
     for s in samples:
@@ -156,8 +162,17 @@ def _build_trajectory_features(
         pad_count = window - (n_states - start)
         for _ in range(pad_count):
             feat.extend([0.0, 0.0, 0.0])
+            if include_coupling:
+                feat.extend([0.0, 0.0])
         for i in range(start, n_states):
             feat.extend([s.states[i].truthness, s.states[i].reliability, s.states[i].validity])
+            if include_coupling and i > 0:
+                t = s.states[i].truthness - s.states[i - 1].truthness
+                v = s.states[i].validity - s.states[i - 1].validity
+                r = s.states[i].reliability - s.states[i - 1].reliability
+                feat.extend([t * v, t * r])
+            elif include_coupling:
+                feat.extend([0.0, 0.0])
         feat.extend(_onehot_family(s.action_family))
         rows.append(feat)
     return np.array(rows, dtype=float)
@@ -184,6 +199,7 @@ def evaluate_predictors(
     window: int = 3,
     ridge_alpha: float = 1.0,
     train_frac: float = 0.8,
+    vec3_tolerance: float = 0.15,
 ) -> dict[str, Any]:
     train_trajs, test_trajs = _trajectory_split(dataset, train_frac)
 
@@ -222,6 +238,7 @@ def evaluate_predictors(
 
     pair_test = _endpoint_matched_pair_test(
         test_trajs, endpoint_model, traj_model, window=window,
+        vec3_tolerance=vec3_tolerance,
     )
 
     return {
@@ -266,7 +283,8 @@ def _classify_trajectories(
         return list(test_trajs), [], 0.0
 
     threshold = float(np.median(per_traj_min))
-    clean, degraded = [], []
+    clean: list[Trajectory] = []
+    degraded: list[Trajectory] = []
     for t, m in zip(test_trajs, per_traj_min):
         (degraded if m < threshold else clean).append(t)
     return clean, degraded, threshold
@@ -295,6 +313,7 @@ def _endpoint_matched_pair_test(
     if not pairs:
         return {
             "n_pairs_found": 0,
+            "vec3_tolerance": vec3_tolerance,
             "class_threshold": round(class_threshold, 4),
             "n_clean": len(clean_trajs),
             "n_degraded": len(degraded_trajs),
@@ -302,8 +321,8 @@ def _endpoint_matched_pair_test(
         }
 
     def _component_arrays(pair_steps: list[dict]) -> dict:
-        end_arr = {"total": [], "T": [], "R": [], "V": []}
-        traj_arr = {"total": [], "T": [], "R": [], "V": []}
+        end_arr: dict[str, list[float]] = {"total": [], "T": [], "R": [], "V": []}
+        traj_arr: dict[str, list[float]] = {"total": [], "T": [], "R": [], "V": []}
         sim_end_arr = []
         sim_traj_arr = []
         for s in pair_steps:
@@ -343,7 +362,7 @@ def _endpoint_matched_pair_test(
         return result
 
     all_arrays = _component_arrays([s for p in pairs for s in p["steps"]])
-    matched_steps = [s for p in pairs for s in p["steps"] if s["cur_vec3_dist"] <= 0.05]
+    matched_steps = [s for p in pairs for s in p["steps"] if s["cur_vec3_dist"] <= vec3_tolerance]
     matched_arrays = _component_arrays(matched_steps)
 
     summary: dict[str, object] = {
@@ -473,20 +492,24 @@ def load_dataset(path: Path) -> PredictionDataset:
                 states=states,
                 action_family=s_raw["action_family"],
                 delta=delta,
+                tv_product=s_raw.get("tv_product", 0.0),
+                tr_product=s_raw.get("tr_product", 0.0),
             ))
         ds.trajectories.append(traj)
     return ds
 
 
 def save_dataset(dataset: PredictionDataset, path: Path) -> None:
-    raw = {"trajectories": []}
+    raw: dict[str, list[dict]] = {"trajectories": []}
     for traj in dataset.trajectories:
-        t_raw = {"trajectory_id": traj.trajectory_id, "samples": []}
+        t_raw: dict[str, Any] = {"trajectory_id": traj.trajectory_id, "samples": []}
         for s in traj.samples:
             t_raw["samples"].append({
                 "states": [{"truthness": v.truthness, "reliability": v.reliability, "validity": v.validity} for v in s.states],
                 "action_family": s.action_family,
                 "delta": {"truthness": s.delta.truthness, "reliability": s.delta.reliability, "validity": s.delta.validity},
+                "tv_product": s.tv_product,
+                "tr_product": s.tr_product,
             })
         raw["trajectories"].append(t_raw)
     path.write_text(json.dumps(raw, indent=2, sort_keys=True), encoding="utf-8")

@@ -1,74 +1,51 @@
-# Canonical Failure Benchmark
+# Canonical Failure Cases
 
-This document captures the lead-time trajectory analysis for the project:
+## Purpose
 
-- source run: [`lead_time/lead_time_analysis/summary.md`](../artifacts/strong_v1_3_torch/lead_time/lead_time_analysis/summary.md)
-- benchmark type: multi-step degradation trajectory
-- backend: torch
-- current artifact budget: `10` epochs, `3` seeds, `15` iterations
+Four cases demonstrate that scalar evaluation (T-only) is not action-sufficient for research-loop decisions. Each case shares T > 0 with clean gains but requires a distinct resolver action because the T/R/V decomposition reveals structurally different outcomes.
 
-## Core result
+## The cases
 
-The benchmark validates all four intended `Vec3` branches on the real torch backend.
-
-| Case | Candidate Metric | Binary | Vec3 | Why Vec3 differs |
+| Case | Candidate Metric | Binary Action | Vec3 Action | Why Vec3 Differs |
 | --- | ---: | --- | --- | --- |
-| Pyrrhic probe | `0.4519` | `adopt` | `hold` | Metric improves, but reliability is negative from gap and instability signals |
-| Metric-gaming probe | `0.4569` | `adopt` | `reframe` | Metric improves, but validity collapses under proxy decoupling |
-| Broken probe | `0.3919` | `reject` | `rollback` | Metric worsens and reliability is strongly negative, indicating internal damage |
-| Eval TTA | `0.4272` | `adopt` | `reframe` | Comparison is invalid because the evaluation regime changed |
+| Pyrrhic Pass | `0.6581` | `adopt` | `hold` | Metric improves, but reliability is degraded — train/val gap widened |
+| Orthogonal Pass | `0.6830` | `adopt` | `reframe` | Metric improves, but validity collapses under proxy decoupling |
+| Broken Failure | `0.5912` | `reject` | `rollback` | Metric worsens and internals detect damage |
+| Incomparable Pass | `0.6550` | `adopt` | `reframe` | Comparison is invalid because the evaluation regime changed |
 
-Headline numbers:
+## Headline
 
 - `4/4` expected cases matched
-- `binary` would adopt `3/4`
-- `Vec3` would adopt `0/4`
+- Scalar (binary) would adopt `3/4` cases that share T > 0 but require non-adopt actions
+- Vec3 distinguishes all four correctly
 
 ## What this supports
 
-This benchmark supports the narrow claim that a `Vec3` evaluator can distinguish multiple failure modes that a metric-only binary evaluator would merge or mishandle on a benchmark-specific calibrated suite.
-
-In particular, it now demonstrates:
-
-- pyrrhic improvement handling
-- metric-gaming / validity failure detection
-- broken failure escalation
-- incomparability detection
+The argument that a single scalar (T) is not sufficient for research-loop decisions, because states with identical T require different actions.
 
 ## What this does not support
 
-This benchmark does not by itself establish that `Vec3` is generally superior on open-ended automated research loops.
-
-It should not be used to claim:
-
-- universal threshold validity
-- general superiority across domains
-- superiority without explicit calibration
-
-The V1.3 lead-time analysis extends that framing: it measures how many steps of lead time the evaluator provides before anti-coupling signals would let a pyrrhic or metric-gamed outcome be adopted.
+This does not by itself establish that Vec3 is generally superior on all benchmarks. It is a representational claim, not a performance claim.
 
 ## Recommended paper wording
 
-Use wording close to:
+Use wording like:
 
-> On a benchmark-specific adversarial calibration suite for `CIFAR-100 + ResNet-18`, the `Vec3` evaluator correctly separated pyrrhic, metric-gamed, broken, and incomparable outcomes, while a binary metric-only controller would have accepted three of the four cases.
+> Standard evaluation collapses structurally distinct outcomes into a single "metric up" category. Vec3 separates these cases by decomposing evaluation along three non-redundant axes, revealing that a positive metric delta is not a uniform signal.
 
 Avoid wording like:
 
-> Vec3 solves automated research evaluation in general.
+> Vec3 outperforms binary evaluation.
 
 ## Recommended demo structure
 
-1. Show the four-case table.
-2. Focus visually on the three binary false positives:
-   - pyrrhic probe
-   - metric-gaming probe
-   - eval regime shift
-3. Use the broken probe as the “damage escalation” case rather than the headline case.
-4. Present open-loop controller runs only after this benchmark, as exploratory evidence.
+1. Show the sufficiency criterion
+2. Show the four-case table as evidence that identical T implies non-identical actions
+3. Show the distinguishability matrix
+4. Show the action-collapse figure
+5. Use the ablation analysis to show that removing axes causes the predicted representational collapse
 
 ## Limitations
 
-- The benchmark uses explicit adversarial probes for calibration.
-- The open-loop torch experiments are still weaker than the benchmark result.
-- The current result is strongest as a controlled stress-test, not yet as a broad claim about unconstrained automated research.
+- The benchmark uses explicitly constructed adversarial probes
+- The current result is strongest as a controlled demonstration, not yet as a broad claim

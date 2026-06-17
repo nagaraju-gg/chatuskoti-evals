@@ -109,14 +109,11 @@ class BundleManifest:
     generated_at: str
     package_version: str
     git_commit: str
-    benchmark: str
     backend: str
     seeds: int
     epochs: int
     controller_mode: str
     ablation: str
-    benchmark_spec_id: str
-    benchmark_spec: dict[str, Any]
     detector_config: dict[str, Any]
     backend_config: dict[str, Any]
     artifact_paths: dict[str, str]
@@ -145,15 +142,52 @@ class CalibrationProfileSummary:
     changed_cases: list[str]
 
 
-def to_jsonable(value: Any) -> Any:
-    if is_dataclass(value):
-        return {key: to_jsonable(inner) for key, inner in asdict(value).items()}
-    if isinstance(value, dict):
-        return {str(key): to_jsonable(inner) for key, inner in value.items()}
-    if isinstance(value, list):
-        return [to_jsonable(inner) for inner in value]
-    if isinstance(value, tuple):
-        return [to_jsonable(inner) for inner in value]
-    if isinstance(value, Path):
+def average_run_metrics(metrics: list[RunMetrics], run_id: str, detector_inputs: dict[str, float | str | bool] | None = None) -> RunMetrics:
+    if not metrics:
+        raise ValueError("metrics must not be empty")
+    first = metrics[0]
+    n = len(metrics)
+    calc = lambda getter: round(sum(getter(item) for item in metrics) / n, 5)
+    proxy_keys = first.proxy_metrics.keys()
+    return RunMetrics(
+        run_id=run_id,
+        seed=-1,
+        primary_metric=calc(lambda item: item.primary_metric),
+        train_loss=calc(lambda item: item.train_loss),
+        val_loss=calc(lambda item: item.val_loss),
+        train_val_gap=calc(lambda item: item.train_val_gap),
+        grad_norm_mean=calc(lambda item: item.grad_norm_mean),
+        grad_norm_std=calc(lambda item: item.grad_norm_std),
+        weight_distance=calc(lambda item: item.weight_distance),
+        param_count=first.param_count,
+        eval_hash=first.eval_hash,
+        model_family=first.model_family,
+        objective_family=first.objective_family,
+        proxy_metrics={key: calc(lambda item, mk=key: item.proxy_metrics[mk]) for key in proxy_keys},
+        detector_inputs=detector_inputs or {},
+    )
+
+
+def to_jsonable(value: Any, _seen: set[int] | None = None) -> Any:
+    if _seen is None:
+        _seen = set()
+    obj_id = id(value)
+    if obj_id in _seen:
         return str(value)
-    return value
+    _seen.add(obj_id)
+    try:
+        if is_dataclass(value):
+            return {key: to_jsonable(inner, _seen) for key, inner in asdict(value).items()}  # type: ignore[arg-type]
+        if isinstance(value, dict):
+            return {str(key): to_jsonable(inner, _seen) for key, inner in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [to_jsonable(inner, _seen) for inner in value]
+        if isinstance(value, Path):
+            return str(value)
+        if isinstance(value, (int, float, bool, str)):
+            return value
+        if value is None:
+            return None
+        return str(value)
+    finally:
+        _seen.discard(obj_id)

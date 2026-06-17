@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from chatuskoti_evals.progress import RunProgressContext, RunProgressTracker
+from chatuskoti_evals.evaluation.progress import RunProgressContext, RunProgressTracker
 
 
 class ProgressTrackerTests(unittest.TestCase):

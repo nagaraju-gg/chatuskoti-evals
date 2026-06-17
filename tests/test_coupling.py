@@ -3,13 +3,11 @@ from __future__ import annotations
 import unittest
 
 from chatuskoti_evals.core.coupling import (
-    _select_window,
     compute_coupling_over_history,
-    find_goodhart_precheck_step,
-    measure_lead_time,
+    get_coupling_angle_history,
     sliding_window_coupling,
 )
-from chatuskoti_evals.models import RunScore, Vec3
+from chatuskoti_evals.core.models import RunScore, Vec3
 
 
 def make_score(t: float, r: float, v: float, signals: list[str] | None = None) -> RunScore:
@@ -37,139 +35,51 @@ class CouplingTests(unittest.TestCase):
         self.assertAlmostEqual(deltas[1]["delta_T"], 0.1)
         self.assertAlmostEqual(deltas[1]["delta_V"], -0.1)
 
-    def test_sliding_window_anti_coupling_detects_goodhart(self) -> None:
+    def test_sliding_window_returns_coupling_values(self) -> None:
         all_deltas = [
             {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": -0.03}
             for i in range(1, 8)
         ]
-        results = sliding_window_coupling(all_deltas, window=3, tau=0.3)
+        results = sliding_window_coupling(all_deltas, window=3)
         self.assertTrue(len(results) > 0)
-        self.assertTrue(any(r["goodhart_warning"] for r in results))
+        for r in results:
+            self.assertIn("t_v_coupling", r)
+            self.assertIn("t_r_coupling", r)
+            self.assertIn("t_v_angle", r)
+            self.assertIn("t_r_angle", r)
 
-    def test_sliding_window_no_warning_when_coupled_positive(self) -> None:
+    def test_sliding_window_no_negative_coupling_on_aligned_data(self) -> None:
         all_deltas = [
             {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": 0.02}
             for i in range(1, 8)
         ]
-        results = sliding_window_coupling(all_deltas, window=3, tau=0.3)
-        self.assertTrue(all(not r["goodhart_warning"] for r in results))
-        self.assertTrue(all(not r["pyrrhic_warning"] for r in results))
-
-    def test_find_goodhart_precheck_step(self) -> None:
-        scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.2, 0.1, 0.4, signals=["proxy_decoupling"]),
-            make_score(0.4, 0.2, 0.1, signals=["hyper_coherence", "proxy_decoupling"]),
-        ]
-        step = find_goodhart_precheck_step(scores)
-        self.assertEqual(step, 2)
-
-    def test_find_goodhart_precheck_returns_none(self) -> None:
-        scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.2, 0.1, 0.5),
-        ]
-        step = find_goodhart_precheck_step(scores)
-        self.assertIsNone(step)
-
-    def test_measure_lead_time_positive(self) -> None:
-        scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.02, 0.01, 0.48),
-            make_score(0.04, 0.01, 0.45),
-            make_score(0.06, 0.0, 0.40),
-            make_score(0.08, -0.01, 0.35),
-            make_score(0.10, -0.02, 0.28),
-            make_score(0.12, -0.03, 0.20),
-            make_score(0.14, -0.04, 0.10, signals=["hyper_coherence", "proxy_decoupling"]),
-        ]
-        result = measure_lead_time(scores, window=3, tau=0.0)
-        self.assertTrue(result["goodhart_warning_fired"])
-        self.assertTrue(result["goodhart_precheck_fired"])
-        self.assertIsNotNone(result["lead_time_steps"])
-        self.assertGreaterEqual(result["lead_time_steps"], 0)
-
-    def test_measure_lead_time_no_warning(self) -> None:
-        scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.02, 0.01, 0.52),
-            make_score(0.04, 0.01, 0.53),
-        ]
-        result = measure_lead_time(scores, window=3, tau=0.4)
-        self.assertFalse(result["goodhart_warning_fired"])
+        results = sliding_window_coupling(all_deltas, window=3)
+        self.assertTrue(all(r["t_v_coupling"] >= 0 for r in results))
+        self.assertTrue(all(r["t_r_coupling"] >= 0 for r in results))
 
     def test_short_history_returns_empty(self) -> None:
         scores = [make_score(0.0, 0.0, 0.0)]
         deltas = compute_coupling_over_history(scores)
         self.assertEqual(deltas, [])
-        coupling = sliding_window_coupling([], window=5, tau=0.4)
+        coupling = sliding_window_coupling([], window=5)
         self.assertEqual(coupling, [])
 
-    def test_auto_tau_adapts_to_anti_coupled_data(self) -> None:
-        all_deltas = []
-        for i in range(1, 15):
-            if i < 8:
-                tv = -0.03
-                tr = -0.02
-            else:
-                tv = 0.02
-                tr = 0.01
-            all_deltas.append({"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": tv})
-        results = sliding_window_coupling(all_deltas, window=3, tau="auto")
-        self.assertTrue(len(results) > 0)
-        self.assertTrue(any(r["goodhart_warning"] for r in results))
-        self.assertIn("tau_tv", results[0])
-        self.assertIn("tau_tr", results[0])
-        self.assertLess(results[0]["tau_tv"], 0)
-
-    def test_auto_tau_fires_no_warnings_on_aligned_data(self) -> None:
-        all_deltas = [
-            {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": 0.02}
-            for i in range(1, 15)
-        ]
-        results = sliding_window_coupling(all_deltas, window=3, tau="auto")
-        self.assertTrue(len(results) > 0)
-        self.assertTrue(all(not r["goodhart_warning"] for r in results))
-        self.assertTrue(all(not r["pyrrhic_warning"] for r in results))
-
-    def test_select_window_picks_reasonable_size(self) -> None:
-        all_deltas = [
-            {"step": i, "delta_T": 0.02, "delta_R": 0.01, "delta_V": -0.03}
-            for i in range(1, 15)
-        ]
-        window = _select_window(all_deltas)
-        self.assertGreaterEqual(window, 2)
-        self.assertLessEqual(window, 7)
-
-    def test_measure_lead_time_auto_window(self) -> None:
+    def test_get_coupling_angle_history(self) -> None:
         scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.02, 0.01, 0.48),
-            make_score(0.04, 0.01, 0.45),
-            make_score(0.06, 0.0, 0.40),
-            make_score(0.08, -0.01, 0.35),
-            make_score(0.10, -0.02, 0.28),
-            make_score(0.12, -0.03, 0.20),
-            make_score(0.14, -0.04, 0.10, signals=["hyper_coherence", "proxy_decoupling"]),
+            make_score(0.0, 0.0, 0.0),
+            make_score(0.1, 0.0, 0.0),
+            make_score(0.2, -0.1, -0.1),
         ]
-        result = measure_lead_time(scores, window="auto", tau=0.0)
-        self.assertTrue(result["goodhart_warning_fired"])
-        self.assertIsInstance(result["window"], int)
-        self.assertGreaterEqual(result["window"], 2)
+        history = get_coupling_angle_history(scores)
+        self.assertEqual(len(history), 2)
+        self.assertAlmostEqual(history[0]["tv_product"], 0.0)
+        self.assertAlmostEqual(history[0]["tr_product"], 0.0)
+        self.assertAlmostEqual(history[1]["tv_product"], -0.01)
+        self.assertAlmostEqual(history[1]["tr_product"], -0.01)
+        self.assertEqual(history[0]["step"], 1)
+        self.assertEqual(history[1]["step"], 2)
 
-    def test_measure_lead_time_auto_tau(self) -> None:
-        scores = [
-            make_score(0.0, 0.0, 0.5),
-            make_score(0.02, 0.01, 0.52),
-            make_score(0.04, 0.02, 0.48),
-            make_score(0.06, 0.01, 0.45),
-            make_score(0.08, 0.0, 0.35),
-            make_score(0.10, -0.01, 0.28),
-            make_score(0.08, -0.02, 0.22),
-            make_score(0.06, -0.03, 0.15, signals=["hyper_coherence", "proxy_decoupling"]),
-        ]
-        result = measure_lead_time(scores, window=3, tau="auto")
-        self.assertTrue(result["goodhart_warning_fired"])
-        self.assertIsInstance(result["tau"], dict)
-        self.assertIn("tv", result["tau"])
-        self.assertIn("tr", result["tau"])
+    def test_get_coupling_angle_history_short(self) -> None:
+        scores = [make_score(0.0, 0.0, 0.0)]
+        history = get_coupling_angle_history(scores)
+        self.assertEqual(history, [])

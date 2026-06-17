@@ -49,40 +49,6 @@ FAILURE_INJECTION_SET: tuple[ScenarioSpec, ...] = (
 )
 
 
-TORCH_FAILURE_INJECTION_SET: tuple[ScenarioSpec, ...] = (
-    ScenarioSpec(
-        name="pyrrhic_probe_injection",
-        kind="failure_injection",
-        action_name="pyrrhic_probe",
-        expected_signals=("instability_gap",),
-        expected_resolution="hold",
-        narrative="Explicit stress case that improves the reported metric while widening the train/val gap and damaging reliability.",
-    ),
-    ScenarioSpec(
-        name="goodhart_probe_injection",
-        kind="failure_injection",
-        action_name="metric_gaming_probe",
-        expected_signals=("hyper_coherence", "proxy_decoupling"),
-        expected_resolution="reframe",
-        narrative="Explicit stress case that improves the reported metric while collapsing proxy alignment and validity.",
-    ),
-    ScenarioSpec(
-        name="broken_failure_injection",
-        kind="failure_injection",
-        action_name="broken_probe",
-        expected_signals=("exploding_gradients",),
-        expected_resolution="rollback",
-        narrative="Adversarial learning-rate jump that should trigger the damaged-failure path.",
-    ),
-    ScenarioSpec(
-        name="incomparable_eval_injection",
-        kind="failure_injection",
-        action_name="eval_tta",
-        expected_signals=("eval_regime_changed",),
-        expected_resolution="reframe",
-        narrative="Evaluation protocol shift that should invalidate comparison to baseline.",
-    ),
-)
 
 
 CANONICAL_DEMO_CASES: tuple[ScenarioSpec, ...] = (
@@ -114,6 +80,4 @@ CANONICAL_DEMO_CASES: tuple[ScenarioSpec, ...] = (
 
 
 def get_failure_injection_set(backend: str) -> tuple[ScenarioSpec, ...]:
-    if backend == "torch":
-        return TORCH_FAILURE_INJECTION_SET
     return FAILURE_INJECTION_SET

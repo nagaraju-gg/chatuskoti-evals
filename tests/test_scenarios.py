@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import unittest
 
-from chatuskoti_evals.actions import ACTION_INDEX
-from chatuskoti_evals.benchmark import SimulatedCIFAR100ResNet18Adapter
-from chatuskoti_evals.config import DetectorConfig, ExperimentConfig
-from chatuskoti_evals.resolver import resolve_vec3
-from chatuskoti_evals.scenarios import FAILURE_INJECTION_SET
-from chatuskoti_evals.scoring import score_run_metrics
+from chatuskoti_evals.core.config import DetectorConfig, ExperimentConfig
+from chatuskoti_evals.evaluation.actions import ACTION_INDEX
+from chatuskoti_evals.evaluation.benchmark import SimulatedCIFAR100ResNet18Adapter
+from chatuskoti_evals.evaluation.resolver import resolve_vec3
+from chatuskoti_evals.evaluation.scenarios import FAILURE_INJECTION_SET
+from chatuskoti_evals.evaluation.scoring import score_run_metrics
 
 
 class ScenarioCatalogTests(unittest.TestCase):

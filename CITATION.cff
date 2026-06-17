@@ -1,22 +1,20 @@
 cff-version: 1.2.0
-title: Chatuskoti Eval Framework
-message: "If you use this repository, please cite it using the metadata below."
+title: "Chatuskoti Evals: A Three-Axis Representation for Research-Loop Decisions"
+message: "If you use this software in your research, please cite it."
 type: software
 authors:
-  - family-names: Nagaraju
-    given-names: Nagaraju
-repository-code: "https://github.com/nagaraju-gg/chatuskoti-evals"
+  - given-names: Nagaraju
+    family-names: G
+    email: nagaraju.raj95@gmail.com
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+repository-code: "https://github.com/your-org/chatuskoti-evals"
+abstract: "Vec3 decomposes research-loop outcomes into three axes (Truthness, Reliability, Validity), preserving distinctions that scalar evaluation necessarily collapses. A representation-sufficiency argument implemented on CIFAR-100 + ResNet-18."
 license: MIT
-abstract: >-
-  Benchmark-specific calibrated eval framework for research outcomes,
-  including a torch-backed adversarial calibration benchmark over pyrrhic,
-  Goodhart-style, broken, and incomparable cases.
+version: 1.3.0
+date-released: 2026-01-15
 keywords:
-  - automated research
   - evaluation
-  - goodhart
+  - research-loop decisions
+  - representational sufficiency
+  - machine learning
   - benchmark
-  - cifar-100
-  - resnet-18
-version: 0.1.0
-date-released: 2026-03-26

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from chatuskoti_evals.config import DetectorConfig
-from chatuskoti_evals.models import RunMetrics, RunScore, Vec3
-from chatuskoti_evals.resolver import adaptive_detector_config, resolve_vec3
-from chatuskoti_evals.scoring import score_run_metrics
+from chatuskoti_evals.core.config import DetectorConfig
+from chatuskoti_evals.core.models import RunMetrics, RunScore, Vec3
+from chatuskoti_evals.evaluation.resolver import adaptive_detector_config, resolve_vec3
+from chatuskoti_evals.evaluation.scoring import score_run_metrics
 
 
 def make_metrics(
@@ -215,3 +215,154 @@ class AdaptiveDetectorConfigTests(unittest.TestCase):
         self.assertLess(adaptive.validity_threshold, 0.7)
         self.assertLess(adaptive.max_spread, 0.40)
         self.assertNotEqual(adaptive, base)
+
+
+class ScoringEdgeCaseTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.cfg = DetectorConfig()
+        self.baseline = make_metrics(
+            run_id="baseline",
+            primary_metric=0.636,
+            train_loss=1.45,
+            val_loss=1.63,
+            train_val_gap=0.18,
+            grad_norm_mean=2.1,
+            grad_norm_std=0.11,
+        )
+
+    def test_empty_metrics_raises(self) -> None:
+        with self.assertRaises(ValueError):
+            score_run_metrics([], self.baseline, self.cfg)
+
+    def test_nan_metric_sets_nan_loss_signal(self) -> None:
+        metric = make_metrics(
+            run_id="nan-test",
+            primary_metric=0.636,
+            train_loss=float("nan"),
+            val_loss=float("nan"),
+            train_val_gap=0.18,
+            grad_norm_mean=2.1,
+            grad_norm_std=0.11,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, self.cfg)
+        self.assertIn("nan_loss", run_score.fired_signals)
+
+    def test_inf_metric_sets_nan_loss_signal(self) -> None:
+        metric = make_metrics(
+            run_id="inf-test",
+            primary_metric=float("inf"),
+            train_loss=1.45,
+            val_loss=1.63,
+            train_val_gap=0.18,
+            grad_norm_mean=2.1,
+            grad_norm_std=0.11,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, self.cfg)
+        self.assertIn("nan_loss", run_score.fired_signals)
+
+    def test_negative_inf_metric_handled(self) -> None:
+        metric = make_metrics(
+            run_id="neginf-test",
+            primary_metric=float("-inf"),
+            train_loss=1.45,
+            val_loss=1.63,
+            train_val_gap=0.18,
+            grad_norm_mean=2.1,
+            grad_norm_std=0.11,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, self.cfg)
+        self.assertIn("nan_loss", run_score.fired_signals)
+        self.assertEqual(run_score.mean.truthness, 0.0)
+
+    def test_extreme_positive_delta_saturates_tanh(self) -> None:
+        metric = make_metrics(
+            run_id="extreme-pos",
+            primary_metric=1.0,
+            train_loss=1.0,
+            val_loss=1.2,
+            train_val_gap=0.15,
+            grad_norm_mean=1.8,
+            grad_norm_std=0.08,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, self.cfg)
+        self.assertAlmostEqual(run_score.mean.truthness, 1.0, places=4)
+
+    def test_single_seed_produces_zero_spread(self) -> None:
+        metric = make_metrics(
+            run_id="single-seed",
+            primary_metric=0.670,
+            train_loss=1.31,
+            val_loss=1.45,
+            train_val_gap=0.14,
+            grad_norm_mean=1.9,
+            grad_norm_std=0.10,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, self.cfg)
+        self.assertEqual(run_score.spread, 0.0)
+        self.assertEqual(run_score.std.truthness, 0.0)
+
+    def test_reliability_disabled_sets_high_reliability(self) -> None:
+        cfg = DetectorConfig(enable_reliability=False)
+        metric = make_metrics(
+            run_id="no-reliability",
+            primary_metric=0.670,
+            train_loss=1.31,
+            val_loss=1.72,
+            train_val_gap=0.41,
+            grad_norm_mean=2.0,
+            grad_norm_std=0.40,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        self.assertGreater(run_score.mean.reliability, 0.7)
+        self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
+
+    def test_validity_disabled_sets_default_validity(self) -> None:
+        cfg = DetectorConfig(enable_validity=False)
+        metric = make_metrics(
+            run_id="no-validity",
+            primary_metric=0.670,
+            train_loss=1.31,
+            val_loss=1.45,
+            train_val_gap=0.14,
+            grad_norm_mean=1.9,
+            grad_norm_std=0.10,
+            proxy_corr=0.30,
+            eval_hash="changed",
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        self.assertGreaterEqual(run_score.mean.validity, 0.74)
+        self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
+
+    def test_spread_gate_disabled_allows_adopt_with_high_spread(self) -> None:
+        cfg = DetectorConfig(enable_spread_gate=False, max_spread=0.05)
+        metrics = [
+            make_metrics(
+                run_id=f"spread-{index}",
+                primary_metric=value,
+                train_loss=1.38,
+                val_loss=1.55,
+                train_val_gap=0.17,
+                grad_norm_mean=1.95,
+                grad_norm_std=0.09,
+            )
+            for index, value in enumerate([0.70, 0.61, 0.67])
+        ]
+        run_score, _ = score_run_metrics(metrics, self.baseline, cfg)
+        self.assertGreater(run_score.spread, cfg.max_spread)
+        self.assertNotEqual(resolve_vec3(run_score, cfg).action, "keep_going")
+
+    def test_all_axes_disabled_matches_binary(self) -> None:
+        cfg = DetectorConfig(enable_reliability=False, enable_validity=False, enable_spread_gate=False)
+        metric = make_metrics(
+            run_id="t-only",
+            primary_metric=0.650,
+            train_loss=1.38,
+            val_loss=1.69,
+            train_val_gap=0.31,
+            grad_norm_mean=2.4,
+            grad_norm_std=0.30,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        self.assertGreater(run_score.mean.truthness, 0.0)
+        resolution = resolve_vec3(run_score, cfg)
+        self.assertIn(resolution.action, ("adopt", "reject"))

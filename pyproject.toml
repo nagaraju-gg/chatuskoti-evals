@@ -6,7 +6,39 @@ build-backend = "setuptools.build_meta"
 name = "chatuskoti-evals"
 version = "1.3.0"
 description = "Benchmark-specific evaluator for deciding whether research gains are real, stable, and decision-ready."
-requires-python = ">=3.11"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.15",
+    "mypy>=2.1",
+]
+
+
 
 [tool.setuptools.packages.find]
 include = ["chatuskoti_evals*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 140
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_optional = true
+ignore_missing_imports = true

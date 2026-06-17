@@ -4,10 +4,11 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from chatuskoti_evals.models import RunScore, Vec3
+from chatuskoti_evals.core.models import RunScore, Vec3
 
 
 class WisdomStore:
+    """Offline memory maintaining running-average T/R/V per action family across iterations."""
     def __init__(self) -> None:
         self._counts: dict[str, int] = defaultdict(int)
         self._truthness: dict[str, float] = defaultdict(float)
@@ -29,6 +30,7 @@ class WisdomStore:
         )
 
     def family_score(self, family: str) -> float:
+        """Weighted composite: truthness (1.0) + reliability (0.35) + validity (0.20)."""
         vec = self.predict(family)
         return vec.truthness + 0.35 * vec.reliability + 0.20 * vec.validity
 
@@ -45,7 +47,7 @@ class WisdomStore:
         path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
     @classmethod
-    def load(cls, path: Path) -> "WisdomStore":
+    def load(cls, path: Path) -> WisdomStore:
         store = cls()
         if not path.exists():
             return store

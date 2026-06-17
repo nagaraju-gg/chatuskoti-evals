@@ -2,7 +2,7 @@
 
 Most evaluation systems make one coarse distinction: improvement or no improvement.
 
-That is too lossy for research loops. A model update can improve the reported metric while still being the wrong thing to merge. `Chatuskoti Eval Framework` separates those cases so the control decision matches the kind of result we actually observed.
+That is too lossy for research loops. A model update can improve the reported metric while still being the wrong thing to merge. Vec3 separates those cases so the control decision matches the kind of result actually observed.
 
 ## The five practical cases
 
@@ -10,28 +10,28 @@ That is too lossy for research loops. A model update can improve the reported me
 | --- | --- | --- |
 | Clean gain | Better metric, healthy internals, valid comparison | `adopt` |
 | Pyrrhic gain | Better metric, worse training dynamics | `hold` |
-| Gamed gain | Better metric, suspicious proxy behavior | `reframe` |
+| Orthogonal gain | Better metric, suspicious proxy behavior | `reframe` |
 | Broken result | Worse metric, obvious damage | `rollback` |
 | Incomparable gain | Better metric under a changed eval regime | `reframe` |
 
 The important shift is this:
 
-- binary evaluation asks “did the number go up?”
-- four-state evaluation asks “what kind of outcome is this, and what action fits it?”
+- binary evaluation asks "did the number go up?"
+- Vec3 evaluation asks "what kind of outcome is this, and what action fits it?"
 
 ## How the scoring works
 
-`Chatuskoti Eval Framework` scores each outcome along:
+Vec3 scores each outcome along three non-redundant axes:
 
-| Axis | What it asks | Why it helps resolve the four-state lens |
+| Axis | What it asks | Why it helps |
 | --- | --- | --- |
-| `truthness` (`T`) | Did the anchored benchmark metric really improve? | Keeps the basic true/false direction of the result visible. |
-| `reliability` (`R`) | Did internals remain healthy and reproducible? | Distinguishes stable results from pyrrhic cases where the metric and the internal story diverge. |
-| `validity` (`V`) | Is this result meaningful rather than gamed or comparison-invalid? | Separates real progress from suspicious wins and invalid before/after comparisons. |
+| `truthness` (`T`) | Did the anchored metric really improve? | Keeps the basic direction visible |
+| `reliability` (`R`) | Did internals remain healthy? | Distinguishes stable from pyrrhic |
+| `validity` (`V`) | Is this result meaningful? | Separates real progress from gamed/invalid wins |
 
-That extra structure turns evaluation into control logic. A pyrrhic gain should not be treated like a clean gain, and an incomparable or metric-gamed gain should not even be treated as a decision-ready before/after result.
+That extra structure turns evaluation into action mapping. A pyrrhic gain should not be treated like a clean gain, and an incomparable gain should not be treated as a decision-ready result.
 
-## Why this matters for research loops
+## Why this matters
 
 In real loops, many bad decisions do not look bad at first:
 
@@ -40,6 +40,6 @@ In real loops, many bad decisions do not look bad at first:
 - the proxy metrics decouple
 - the evaluation quietly changes
 
-If the controller only sees the top-line number, it will merge exactly the kinds of results that later become regressions, misleading wins, or wasted search effort.
+If the controller only sees the top-line number, it will merge exactly the kinds of results that later become regressions or misleading wins.
 
-That is what this repo is trying to fix.
+That is what Vec3 aims to fix — not by improving the metric, but by preserving the distinctions scalar evaluation loses.

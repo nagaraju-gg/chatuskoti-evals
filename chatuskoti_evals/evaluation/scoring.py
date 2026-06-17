@@ -3,8 +3,8 @@ from __future__ import annotations
 import math
 from statistics import mean, stdev
 
-from chatuskoti_evals.config import DetectorConfig
-from chatuskoti_evals.models import RunMetrics, RunScore, SeedScore, Vec3
+from chatuskoti_evals.core.config import DetectorConfig
+from chatuskoti_evals.core.models import RunMetrics, RunScore, SeedScore, Vec3
 
 
 def score_run_metrics(
@@ -12,6 +12,7 @@ def score_run_metrics(
     baseline_metrics: RunMetrics,
     cfg: DetectorConfig,
 ) -> tuple[RunScore, list[SeedScore]]:
+    """Score candidate metrics against baseline, producing T/R/V per-seed and aggregated RunScore."""
     if not candidate_metrics:
         raise ValueError("candidate_metrics must not be empty")
 
@@ -55,7 +56,7 @@ def score_run_metrics(
 
     fired_signals: list[str] = []
     raw_detectors: dict[str, float] = {}
-    axis_components = {"reliability": {}, "validity": {}}
+    axis_components: dict[str, dict[str, float]] = {"reliability": {}, "validity": {}}
     for seed_score in per_seed_scores:
         for signal in seed_score.fired_signals:
             if signal not in fired_signals:
@@ -95,6 +96,7 @@ def score_single_seed(
     baseline: RunMetrics,
     cfg: DetectorConfig,
 ) -> SeedScore:
+    """Score a single seed: compute truthness, reliability, validity and detect signals."""
     fired_signals: list[str] = []
     raw_detectors: dict[str, float | bool | str] = {}
 
@@ -199,24 +201,28 @@ def score_single_seed(
 
 
 def ratio(numerator: float, denominator: float) -> float:
+    """Safe division returning 0.0 when denominator is near zero."""
     if abs(denominator) < 1e-8:
         return 0.0
     return numerator / denominator
 
 
 def safe_tanh(value: float) -> float:
+    """Tanh with NaN/Inf protection, returning 0.0 for non-finite inputs."""
     if not math.isfinite(value):
         return 0.0
     return math.tanh(value)
 
 
 def bounded_inverse(value: float, scale: float) -> float:
+    """Map value/scale to [0,1] — 1 when value is 0, approaching 0 as value exceeds scale."""
     if not math.isfinite(value) or scale <= 0:
         return 0.0
     return clamp(1.0 - (value / scale))
 
 
 def score_ratio(value: float, *, good_max: float, warn_threshold: float, hard_cap: float) -> float:
+    """Score a ratio against thresholds: 1.0 if <= good_max, linear decay to -1.0 at hard_cap."""
     if not math.isfinite(value):
         return -1.0
     if value <= good_max:
@@ -231,6 +237,7 @@ def score_ratio(value: float, *, good_max: float, warn_threshold: float, hard_ca
 
 
 def score_delta(delta: float, *, negative_threshold: float) -> float:
+    """Score a delta: 1.0 if >= 0, linearly decreasing to -1.0 as delta reaches -negative_threshold."""
     if not math.isfinite(delta):
         return -1.0
     if delta >= 0:
@@ -239,6 +246,7 @@ def score_delta(delta: float, *, negative_threshold: float) -> float:
 
 
 def score_floor(value: float, *, floor: float, soft_floor: float) -> float:
+    """Score on a floor: 1.0 above soft_floor, linear between floor and soft_floor, negative below floor."""
     if not math.isfinite(value):
         return -1.0
     if value >= soft_floor:
@@ -251,4 +259,5 @@ def score_floor(value: float, *, floor: float, soft_floor: float) -> float:
 
 
 def clamp(value: float, minimum: float = -1.0, maximum: float = 1.0) -> float:
+    """Clamp value to [minimum, maximum] range."""
     return max(minimum, min(maximum, value))

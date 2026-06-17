@@ -11,7 +11,6 @@ if str(ROOT_DIR) not in sys.path:
 
 from chatuskoti_evals import __version__
 
-
 EXPECTED_FILES = {
     "canonical_failure": [
         "manifest.json",
@@ -42,7 +41,7 @@ EXPECTED_FILES = {
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate a versioned torch release bundle.")
+    parser = argparse.ArgumentParser(description="Validate a versioned release bundle.")
     parser.add_argument("bundle_root", type=Path)
     args = parser.parse_args()
 

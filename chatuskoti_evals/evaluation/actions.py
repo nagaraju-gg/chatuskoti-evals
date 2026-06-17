@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from chatuskoti_evals.models import ActionSpec
-
+from chatuskoti_evals.core.models import ActionSpec
 
 ACTION_LIBRARY: list[ActionSpec] = [
     ActionSpec(
@@ -81,6 +80,30 @@ ACTION_LIBRARY: list[ActionSpec] = [
         family="failure_injection.broken_probe",
         params={"metric_drop": 0.03},
         rationale="Explicit adversarial calibration action that degrades the metric and internal stability strongly enough to justify rollback.",
+    ),
+    ActionSpec(
+        name="pyrrhic_high_variance",
+        family="failure_injection.pyrrhic_high_variance",
+        params={"metric_boost": 0.025},
+        rationale="Metric improves but sampling variance is high — a distinct pyrrhic mechanism from instability gap.",
+    ),
+    ActionSpec(
+        name="pyrrhic_fragile",
+        family="failure_injection.pyrrhic_fragile",
+        params={"metric_boost": 0.022},
+        rationale="Metric improves but is fragile under perturbation — train/val gap widens significantly.",
+    ),
+    ActionSpec(
+        name="orthogonal_shortcut",
+        family="failure_injection.orthogonal_shortcut",
+        params={"metric_boost": 0.030},
+        rationale="Metric improves via shortcut learning — proxy alignment collapses while metric looks strong.",
+    ),
+    ActionSpec(
+        name="orthogonal_ref_mismatch",
+        family="failure_injection.orthogonal_ref_mismatch",
+        params={"metric_boost": 0.015},
+        rationale="Metric improves under a changed reference condition — comparison to baseline is invalid.",
     ),
 ]
 

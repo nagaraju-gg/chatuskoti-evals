@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from chatuskoti_evals.actions import ACTION_LIBRARY
-from chatuskoti_evals.models import ActionSpec, HistoryEntry
-from chatuskoti_evals.wisdom import WisdomStore
+from chatuskoti_evals.core.models import ActionSpec, HistoryEntry
+from chatuskoti_evals.core.wisdom import WisdomStore
+from chatuskoti_evals.evaluation.actions import ACTION_LIBRARY
 
 
 class ProposalEngine:
+    """Selects the next action based on controller mode, history, and wisdom store scores."""
     def propose(self, controller: str, history: list[HistoryEntry], wisdom: WisdomStore, mode: str = "default") -> ActionSpec:
-        if mode == "calibration":
-            return self._propose_calibration(history, wisdom)
-        if mode == "challenge":
-            return self._propose_challenge(history, wisdom)
+        """Choose next action: priority rules first (vec3 recovery, binary fallback), then best by wisdom."""
         tried = {entry.action_spec.name for entry in history}
         last = history[-1] if history else None
         last_signals = set(last.run_score.fired_signals if last else [])
@@ -45,40 +43,6 @@ class ProposalEngine:
         if not remaining:
             return ACTION_LIBRARY[-1]
         return max(remaining, key=lambda action: wisdom.family_score(action.family))
-
-    def _propose_calibration(self, history: list[HistoryEntry], wisdom: WisdomStore) -> ActionSpec:
-        tried = {entry.action_spec.name for entry in history}
-        ordered_candidates = [
-            "pyrrhic_probe",
-            "metric_gaming_probe",
-            "broken_probe",
-            "dropout_high",
-            "eval_tta",
-            "stochastic_depth_high",
-            "adamw",
-            "high_lr",
-            "label_smoothing",
-        ]
-        for name in ordered_candidates:
-            if name not in tried:
-                return self._lookup(name)
-        return self._best_by_wisdom(tried, wisdom)
-
-    def _propose_challenge(self, history: list[HistoryEntry], wisdom: WisdomStore) -> ActionSpec:
-        tried = {entry.action_spec.name for entry in history}
-        ordered_candidates = [
-            "pyrrhic_probe",
-            "metric_gaming_probe",
-            "eval_tta",
-            "adamw",
-            "label_smoothing",
-            "mixup",
-            "stochastic_depth_low",
-        ]
-        for name in ordered_candidates:
-            if name not in tried:
-                return self._lookup(name)
-        return self._best_by_wisdom(tried, wisdom)
 
     @staticmethod
     def _lookup(name: str) -> ActionSpec:

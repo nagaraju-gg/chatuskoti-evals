@@ -58,12 +58,7 @@ class AblationConfig:
 
     @property
     def normalized_name(self) -> str:
-        aliases = {
-            "no_coherence": "no_reliability",
-            "no_comparability": "no_validity",
-            "no_goodhart": "no_validity",
-        }
-        return aliases.get(self.name, self.name)
+        return self.name
 
 
 @dataclass(frozen=True)
@@ -87,29 +82,6 @@ class SimulationConfig:
 
 
 @dataclass(frozen=True)
-class TorchBenchmarkConfig:
-    dataset: str = "CIFAR-100"
-    model: str = "ResNet-18"
-    framework: str = "PyTorch"
-    data_dir: Path = Path("data")
-    device: str = "auto"
-    epochs: int = 3
-    batch_size: int = 128
-    eval_batch_size: int = 256
-    num_workers: int = 2
-    learning_rate: float = 0.1
-    weight_decay: float = 5e-4
-    momentum: float = 0.9
-    val_fraction: float = 0.1
-    split_seed: int = 13
-    download: bool = True
-    use_amp: bool = True
-    label_smoothing: float = 0.0
-    tta_horizontal_flip: bool = True
-    log_every_epoch: bool = True
-
-
-@dataclass(frozen=True)
 class ReportConfig:
     output_dir: Path
     keep_raw_seed_metrics: bool = True
@@ -120,5 +92,4 @@ class ExperimentConfig:
     backend: str = "simulator"
     detector: DetectorConfig = field(default_factory=DetectorConfig)
     simulation: SimulationConfig = field(default_factory=SimulationConfig)
-    torch: TorchBenchmarkConfig = field(default_factory=TorchBenchmarkConfig)
     ablation: AblationConfig = field(default_factory=AblationConfig)

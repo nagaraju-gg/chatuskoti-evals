@@ -112,8 +112,8 @@ def extract_cases_to_csv(bundle_path: Path, output_path: Path) -> Path:
             }
         )
 
-    # Also try to extract per-iteration cases from comparison/lead-time runs
-    for subdir in ["challenge_compare", "vec3", "binary", "lead_time"]:
+    # Also try to extract per-iteration cases from controller runs
+    for subdir in ["vec3", "binary"]:
         history_path = bundle_path / subdir / "history.jsonl"
         if history_path.exists():
             for line in history_path.read_text(encoding="utf-8").splitlines():

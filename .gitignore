@@ -1,10 +1,10 @@
 __pycache__/
 *.pyc
 .venv/
+_output/
 logs/
 data/
-artifacts/*
-!artifacts/index.md
-!artifacts/strong_*/
+artifacts/
+_test_output/
 *.egg-info/
 .DS_Store

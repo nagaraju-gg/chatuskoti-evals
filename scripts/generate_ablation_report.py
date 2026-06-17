@@ -4,11 +4,10 @@ import json
 import sys
 from pathlib import Path
 
-from chatuskoti_evals.config import AblationConfig, DetectorConfig
-from chatuskoti_evals.models import RunScore, Vec3
-from chatuskoti_evals.reporting import write_bar_chart_svg
-from chatuskoti_evals.resolver import resolve_vec3
-
+from chatuskoti_evals.core.config import AblationConfig, DetectorConfig
+from chatuskoti_evals.core.models import RunScore, Vec3
+from chatuskoti_evals.evaluation.reporting import write_bar_chart_svg
+from chatuskoti_evals.evaluation.resolver import resolve_vec3
 
 ABLATIONS = ("full", "no_reliability", "no_validity", "no_wisdom", "no_spread_gate", "t_only", "t_r", "t_v", "t_r_v")
 
@@ -92,9 +91,9 @@ def to_run_score(payload: dict[str, object]) -> RunScore:
 
 def write_summary_markdown(path: Path, rows: list[dict[str, object]]) -> None:
     lines = [
-        "# Failure Benchmark Ablations",
+        "# Ablation Report: Representational Collapse",
         "",
-        "This report re-resolves the saved canonical failure benchmark under ablated detector settings.",
+        "Removing axes tests representational sufficiency: fewer axes should merge states that require different actions.",
         "",
         "| Ablation | Matched | Case outcomes |",
         "| --- | --- | --- |",
