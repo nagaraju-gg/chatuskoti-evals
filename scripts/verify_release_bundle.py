@@ -17,25 +17,11 @@ EXPECTED_FILES = {
         "failure_injection/summary.md",
         "failure_injection/failure_results.json",
     ],
-    "challenge_compare": [
-        "manifest.json",
-        "comparison.md",
-        "comparison_summary.json",
-        "controller_comparison.svg",
-        "challenge_cases.md",
-    ],
     "ablations": [
         "manifest.json",
         "summary.md",
         "summary.json",
         "ablation_summary.svg",
-    ],
-    "calibration": [
-        "manifest.json",
-        "summary.md",
-        "summary.json",
-        "threshold_sweep.svg",
-        "default/failure_injection/summary.md",
     ],
 }
 

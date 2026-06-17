@@ -131,17 +131,6 @@ class AggregateSummary:
     total_cases: int
 
 
-@dataclass(frozen=True)
-class CalibrationProfileSummary:
-    label: str
-    notes: str
-    matched_expectations: int
-    total_cases: int
-    preserved_resolutions: int
-    threshold_values: dict[str, float]
-    changed_cases: list[str]
-
-
 def average_run_metrics(metrics: list[RunMetrics], run_id: str, detector_inputs: dict[str, float | str | bool] | None = None) -> RunMetrics:
     if not metrics:
         raise ValueError("metrics must not be empty")
