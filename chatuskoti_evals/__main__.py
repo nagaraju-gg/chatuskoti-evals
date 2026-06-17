@@ -48,7 +48,8 @@ def _run() -> None:
     print(f"  {'Variant':<20s}  {'Matched':<10s}  {'Mean T':<8s}  {'Mean R':<8s}  {'Mean V':<8s}")
     print("  " + "\u2500" * 60)
     for s in summaries:
-        print(f"  {s.label:<20s}  {s.matched_expectations}/{s.total_cases:<5}  {s.mean_truthness:+.3f}  {s.mean_reliability:+.3f}  {s.mean_validity:+.3f}")
+        mt, mr, mv = s.mean_truthness, s.mean_reliability, s.mean_validity
+        print(f"  {s.label:<20s}  {s.matched_expectations}/{s.total_cases:<5}  {mt:+.3f}  {mr:+.3f}  {mv:+.3f}")
     print(f"  {len(summaries)} variants  \u2022  {elapsed:.1f}s")
 
     # --- Summary ---

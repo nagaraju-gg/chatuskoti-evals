@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from chatuskoti_evals.core.config import ExperimentConfig
 from chatuskoti_evals.evaluation.runner import run_ablation_bundle, run_failure_injection_set
 
 
