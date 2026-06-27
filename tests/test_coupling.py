@@ -4,6 +4,7 @@ import unittest
 
 from chatuskoti_evals.core.coupling import (
     compute_coupling_over_history,
+    detect_overlay_diagnostics,
     get_coupling_angle_history,
     sliding_window_coupling,
 )
@@ -45,8 +46,10 @@ class CouplingTests(unittest.TestCase):
         for r in results:
             self.assertIn("t_v_coupling", r)
             self.assertIn("t_r_coupling", r)
+            self.assertIn("r_v_coupling", r)
             self.assertIn("t_v_angle", r)
             self.assertIn("t_r_angle", r)
+            self.assertIn("r_v_angle", r)
 
     def test_sliding_window_no_negative_coupling_on_aligned_data(self) -> None:
         all_deltas = [
@@ -76,6 +79,7 @@ class CouplingTests(unittest.TestCase):
         self.assertAlmostEqual(history[0]["tr_product"], 0.0)
         self.assertAlmostEqual(history[1]["tv_product"], -0.01)
         self.assertAlmostEqual(history[1]["tr_product"], -0.01)
+        self.assertAlmostEqual(history[1]["rv_product"], 0.01)
         self.assertEqual(history[0]["step"], 1)
         self.assertEqual(history[1]["step"], 2)
 
@@ -83,3 +87,30 @@ class CouplingTests(unittest.TestCase):
         scores = [make_score(0.0, 0.0, 0.0)]
         history = get_coupling_angle_history(scores)
         self.assertEqual(history, [])
+
+    def test_instrument_tradeoff_overlay_uses_paper_window_and_tau(self) -> None:
+        scores = [
+            make_score(0.0, 0.0, 0.0),
+            make_score(0.0, 0.1, -0.1),
+            make_score(0.0, 0.2, -0.2),
+            make_score(0.0, 0.3, -0.3),
+            make_score(0.0, 0.4, -0.4),
+            make_score(0.0, 0.5, -0.5),
+        ]
+        diagnostics = detect_overlay_diagnostics(scores)
+        self.assertEqual(len(diagnostics), 1)
+        self.assertEqual(diagnostics[0]["diagnostic"], "instrument_tradeoff")
+        self.assertEqual(diagnostics[0]["window"], 5)
+        self.assertEqual(diagnostics[0]["tau"], 0.4)
+        self.assertLessEqual(diagnostics[0]["coupling"], -0.4)
+
+    def test_instrument_tradeoff_overlay_does_not_fire_on_aligned_rv(self) -> None:
+        scores = [
+            make_score(0.0, 0.0, 0.0),
+            make_score(0.0, 0.1, 0.1),
+            make_score(0.0, 0.2, 0.2),
+            make_score(0.0, 0.3, 0.3),
+            make_score(0.0, 0.4, 0.4),
+            make_score(0.0, 0.5, 0.5),
+        ]
+        self.assertEqual(detect_overlay_diagnostics(scores), [])

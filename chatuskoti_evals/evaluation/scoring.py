@@ -4,7 +4,7 @@ import math
 from statistics import mean, stdev
 
 from chatuskoti_evals.core.config import DetectorConfig
-from chatuskoti_evals.core.models import RunMetrics, RunScore, SeedScore, Vec3
+from chatuskoti_evals.core.models import AxisValue, RunMetrics, RunScore, SeedScore, Vec3, Vec3State
 
 
 def score_run_metrics(
@@ -27,26 +27,46 @@ def score_run_metrics(
     if cfg.enable_reliability and len(metric_deltas) > 1:
         seed_variance_score = bounded_inverse(abs(stdev(metric_deltas)), cfg.seed_metric_std_scale)
 
-    mean_reliability = mean(reliabilities)
-    if cfg.enable_reliability:
-        mean_reliability = clamp(0.65 * mean_reliability + 0.35 * seed_variance_score)
+    reliability_axis = axis_from_values(
+        name="reliability",
+        values=reliabilities,
+        enabled=cfg.enable_reliability,
+        cfg=cfg,
+        run_detector=seed_variance_score,
+    )
 
-    mean_validity = mean(validities)
-    if not cfg.enable_validity:
-        mean_validity = 0.75
+    validity_axis = axis_from_values(
+        name="validity",
+        values=validities,
+        enabled=cfg.enable_validity,
+        cfg=cfg,
+    )
+    truthness_axis = AxisValue("truthness", round(mean(truthnesses), 5), "measured")
+
+    mean_state = Vec3State(
+        truthness=truthness_axis,
+        reliability=reliability_axis,
+        validity=validity_axis,
+    )
 
     mean_vec = Vec3(
-        truthness=round(mean(truthnesses), 5),
-        reliability=round(mean_reliability, 5),
-        validity=round(mean_validity, 5),
+        truthness=truthness_axis.projected(),
+        reliability=reliability_axis.projected(),
+        validity=validity_axis.projected(),
     )
     std_vec = Vec3(
         truthness=round(stdev(truthnesses), 5) if len(truthnesses) > 1 else 0.0,
-        reliability=round(stdev(reliabilities), 5) if len(reliabilities) > 1 else 0.0,
-        validity=round(stdev(validities), 5) if len(validities) > 1 else 0.0,
+        reliability=0.0 if not reliability_axis.is_defined else round(stdev(reliabilities), 5) if len(reliabilities) > 1 else 0.0,
+        validity=0.0 if not validity_axis.is_defined else round(stdev(validities), 5) if len(validities) > 1 else 0.0,
     )
     mag = round(
-        math.sqrt(mean_vec.truthness**2 + mean_vec.reliability**2 + mean_vec.validity**2),
+        math.sqrt(
+            sum(
+                axis.projected() ** 2
+                for axis in (mean_state.truthness, mean_state.reliability, mean_state.validity)
+                if axis.is_defined
+            )
+        ),
         5,
     )
     spread = round(
@@ -88,6 +108,7 @@ def score_run_metrics(
         fired_signals=fired_signals,
         raw_detectors=raw_detectors,
         axis_components=axis_components,
+        axis_state=mean_state,
     ), per_seed_scores
 
 
@@ -101,7 +122,7 @@ def score_single_seed(
     raw_detectors: dict[str, float | bool | str] = {}
 
     metric_delta = candidate.primary_metric - baseline.primary_metric
-    truthness = safe_tanh(metric_delta / cfg.truth_delta_scale)
+    truthness = score_truthness(candidate.primary_metric, baseline.primary_metric, cfg)
 
     val_loss_delta = baseline.val_loss - candidate.val_loss
     gap_ratio = ratio(candidate.train_val_gap, baseline.train_val_gap)
@@ -152,9 +173,13 @@ def score_single_seed(
         gap_reliability = -1.0
         grad_reliability = -1.0
 
-    reliability = 0.75
+    reliability = cfg.disabled_axis_imputation
     if cfg.enable_reliability:
-        reliability = clamp(0.55 * gap_reliability + 0.45 * grad_reliability)
+        reliability = aggregate_components(
+            [gap_reliability, grad_reliability],
+            cfg,
+            weights=[0.55, 0.45],
+        )
 
     comparison_validity = 1.0
     if candidate.eval_hash != baseline.eval_hash:
@@ -176,9 +201,13 @@ def score_single_seed(
     if proxy_corr_delta < -cfg.proxy_corr_drop:
         fired_signals.append("proxy_decoupling")
 
-    validity = 0.75
+    validity = cfg.disabled_axis_imputation
     if cfg.enable_validity:
-        validity = clamp(0.45 * comparison_validity + 0.35 * proxy_alignment + 0.20 * efficiency_validity)
+        validity = aggregate_components(
+            [comparison_validity, proxy_alignment, efficiency_validity],
+            cfg,
+            weights=[0.45, 0.35, 0.20],
+        )
 
     axis_components = {
         "reliability": {
@@ -198,6 +227,68 @@ def score_single_seed(
         raw_detectors=raw_detectors,
         axis_components=axis_components,
     )
+
+
+def score_truthness(candidate_metric: float, baseline_metric: float, cfg: DetectorConfig) -> float:
+    metric_delta = candidate_metric - baseline_metric
+    if cfg.truthness_transform == "absolute_delta":
+        return safe_tanh(metric_delta / cfg.truth_delta_scale)
+    if cfg.truthness_transform == "relative_delta":
+        denominator = baseline_metric + cfg.relative_truth_epsilon
+        if abs(denominator) < 1e-12:
+            return 0.0
+        return safe_tanh((metric_delta / denominator) * cfg.relative_truth_scale)
+    raise ValueError(f"unknown truthness_transform: {cfg.truthness_transform}")
+
+
+def aggregate_components(values: list[float], cfg: DetectorConfig, *, weights: list[float] | None = None) -> float:
+    if not values:
+        return 0.0
+    if cfg.axis_aggregation == "weighted":
+        if weights is None:
+            return clamp(mean(values))
+        total_weight = sum(weights)
+        if total_weight <= 0:
+            return 0.0
+        return clamp(sum(value * weight for value, weight in zip(values, weights, strict=False)) / total_weight)
+    if cfg.axis_aggregation == "worst_case":
+        return clamp(min(values))
+    raise ValueError(f"unknown axis_aggregation: {cfg.axis_aggregation}")
+
+
+def axis_from_values(
+    *,
+    name: str,
+    values: list[float],
+    enabled: bool,
+    cfg: DetectorConfig,
+    run_detector: float | None = None,
+) -> AxisValue:
+    if not enabled:
+        if cfg.disabled_axis_policy == "impute":
+            return AxisValue(
+                name,
+                round(cfg.disabled_axis_imputation, 5),
+                "imputed",
+                f"axis disabled; imputed {cfg.disabled_axis_imputation:.3f}",
+            )
+        if cfg.disabled_axis_policy == "undefined":
+            return AxisValue(name, None, "undefined", "axis disabled; state is partial")
+        raise ValueError(f"unknown disabled_axis_policy: {cfg.disabled_axis_policy}")
+
+    if cfg.axis_aggregation == "weighted":
+        value = mean(values)
+        if name == "reliability" and run_detector is not None:
+            value = clamp(0.65 * value + 0.35 * run_detector)
+        return AxisValue(name, round(value, 5), "measured")
+
+    if cfg.axis_aggregation == "worst_case":
+        candidates = list(values)
+        if name == "reliability" and run_detector is not None:
+            candidates.append(run_detector)
+        return AxisValue(name, round(min(candidates), 5), "measured")
+
+    raise ValueError(f"unknown axis_aggregation: {cfg.axis_aggregation}")
 
 
 def ratio(numerator: float, denominator: float) -> float:

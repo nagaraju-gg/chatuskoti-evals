@@ -50,7 +50,11 @@ class ReportGenerator:
         for metrics, entry in zip(per_iteration_metrics, history):
             metric_series.append(round(sum(item.primary_metric for item in metrics) / len(metrics), 5))
             accepted_series.append(entry.accepted_primary_metric if entry.accepted_primary_metric is not None else accepted_series[-1])
-        write_line_chart_svg(run_dir / "metric_trajectory.svg", "Metric Trajectory", {"candidate": metric_series, "accepted": accepted_series})
+        write_line_chart_svg(
+            run_dir / "metric_trajectory.svg",
+            "Metric Trajectory",
+            {"candidate": metric_series, "accepted": accepted_series},
+        )
 
         action_counts = Counter(entry.resolver_action for entry in history)
         write_bar_chart_svg(run_dir / "action_counts.svg", "Resolver Actions", dict(action_counts))
@@ -58,6 +62,7 @@ class ReportGenerator:
         octant_counts = Counter(classify_region(entry) for entry in history)
         write_bar_chart_svg(run_dir / "outcome_regions.svg", "Outcome Regions", dict(octant_counts))
 
+        fired_signals = sorted({signal for entry in history for signal in entry.run_score.fired_signals})
         summary_lines = [
             f"# {controller.upper()} Controller Report",
             "",
@@ -65,17 +70,19 @@ class ReportGenerator:
             f"- Final accepted metric: `{accepted_series[-1]:.4f}`",
             f"- Final baseline metric after adoptions: `{final_baseline.metrics.primary_metric:.4f}`",
             f"- Iterations: `{len(history)}`",
-            f"- Fired signals seen: `{', '.join(sorted({signal for entry in history for signal in entry.run_score.fired_signals})) or 'none'}`",
+            f"- Fired signals seen: `{', '.join(fired_signals) or 'none'}`",
             "",
             "## Iterations",
         ]
         for entry in history:
+            mean_score = entry.run_score.mean
             summary_lines.extend(
                 [
                     f"### Iteration {entry.iteration}: `{entry.action_spec.name}`",
                     f"- Action: `{entry.resolver_action}`",
                     f"- Why: `{entry.resolver_reason}`",
-                    f"- TRV: `({entry.run_score.mean.truthness:.3f}, {entry.run_score.mean.reliability:.3f}, {entry.run_score.mean.validity:.3f})`",
+                    f"- TRV: `({mean_score.truthness:.3f}, {mean_score.reliability:.3f}, {mean_score.validity:.3f})`",
+                    f"- Axis status: `{format_axis_state(entry.run_score)}`",
                     f"- Reliability components: `{format_components(entry.run_score.axis_components.get('reliability', {}))}`",
                     f"- Validity components: `{format_components(entry.run_score.axis_components.get('validity', {}))}`",
                     f"- Signals: `{', '.join(entry.run_score.fired_signals) or 'none'}`",
@@ -124,6 +131,7 @@ class ReportGenerator:
             "## Cases",
         ]
         for item in results:
+            mean_score = item.run_score.mean
             summary_lines.extend(
                 [
                     f"### `{item.scenario_name}` via `{item.action_spec.name}`",
@@ -135,7 +143,8 @@ class ReportGenerator:
                     f"- Resolver reason: `{item.resolution.reason}`",
                     f"- Expected signals: `{', '.join(item.expected_signals) or 'none'}`",
                     f"- Actual signals: `{', '.join(item.run_score.fired_signals) or 'none'}`",
-                    f"- TRV: `({item.run_score.mean.truthness:.3f}, {item.run_score.mean.reliability:.3f}, {item.run_score.mean.validity:.3f})`",
+                    f"- TRV: `({mean_score.truthness:.3f}, {mean_score.reliability:.3f}, {mean_score.validity:.3f})`",
+                    f"- Axis status: `{format_axis_state(item.run_score)}`",
                     f"- Reliability components: `{format_components(item.run_score.axis_components.get('reliability', {}))}`",
                     f"- Validity components: `{format_components(item.run_score.axis_components.get('validity', {}))}`",
                 ]
@@ -167,7 +176,8 @@ class ReportGenerator:
             )
         path = output_dir / "summary.md"
         path.write_text("\n".join(rows) + "\n", encoding="utf-8")
-        (output_dir / "summary.json").write_text(json.dumps([to_jsonable(item) for item in summaries], indent=2, sort_keys=True), encoding="utf-8")
+        payload = json.dumps([to_jsonable(item) for item in summaries], indent=2, sort_keys=True)
+        (output_dir / "summary.json").write_text(payload, encoding="utf-8")
         write_bar_chart_svg(
             output_dir / "ablation_summary.svg",
             "Matched Failure Cases by Ablation",
@@ -214,6 +224,15 @@ def format_components(components: dict[str, float]) -> str:
     if not components:
         return "none"
     return ", ".join(f"{key}={value:.3f}" for key, value in sorted(components.items()))
+
+
+def format_axis_state(run_score) -> str:
+    if run_score.axis_state is None:
+        return "truthness=measured, reliability=measured, validity=measured"
+    return ", ".join(
+        f"{axis}={status}"
+        for axis, status in run_score.axis_state.status_map().items()
+    )
 
 
 def escape_xml(text: str) -> str:

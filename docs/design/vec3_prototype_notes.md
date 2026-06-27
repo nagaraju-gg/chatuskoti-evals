@@ -37,3 +37,29 @@ The paper should be framed as a **representation** argument, not a benchmark/per
 - Avoid lead time, trajectory prediction, or predictive performance claims
 - Avoid calibration sweeps as primary evidence
 - Avoid any claim about general superiority without explicit scope
+
+## Implementation compatibility
+
+The implementation should be described as an expanded Vec3 evaluator rather than as two separate modes. The older Chatuskoti behavior
+is a subset obtained by the following policies:
+
+- Truthness: absolute metric delta scaled by `truth_delta_scale`
+- R/V aggregation: weighted detector blend
+- Disabled axes: explicit imputation, historically `0.75`
+- Resolver: staged instrument classification with the historical action priority
+
+The paper-aligned behavior is obtained by different policies inside the same evaluator:
+
+- Truthness: relative metric delta scaled by `relative_truth_scale = 4`
+- R/V aggregation: worst-case detector aggregation
+- Disabled axes: `undefined`, preserving partial states instead of projecting them to a point
+- Thresholds: set to the paper priors where the paper uses concrete values
+
+Reports and run logs should expose axis status so imputed and undefined coordinates are never silently confused with measured coordinates.
+
+`configs/vec3_prototype.json` is the pinned Vec3 prototype configuration. It should be cited for reproducibility rather than asking readers to infer
+the prototype settings from the working default.
+
+The Instrument Tradeoff overlay is implemented as the paper's trajectory check: mean sign of `Delta R * Delta V` over a rolling window
+of `n = 5`, firing when the coupling is `<= -0.4`. This is distinct from the Goodhart structural pre-check, which remains only partially
+represented by detector signals and should still be caveated unless implemented as its own named structural-distance check.

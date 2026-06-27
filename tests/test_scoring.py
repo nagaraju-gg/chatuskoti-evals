@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import math
 import unittest
+from pathlib import Path
 
-from chatuskoti_evals.core.config import DetectorConfig
+from chatuskoti_evals.core.config import DetectorConfig, detector_config_preset, load_detector_config, vec3_prototype_detector_config
 from chatuskoti_evals.core.models import RunMetrics, RunScore, Vec3
-from chatuskoti_evals.evaluation.resolver import adaptive_detector_config, resolve_vec3
+from chatuskoti_evals.evaluation.resolver import adaptive_detector_config, classify_instrument_state, resolve_vec3
 from chatuskoti_evals.evaluation.scoring import score_run_metrics
 
 
@@ -314,6 +316,8 @@ class ScoringEdgeCaseTests(unittest.TestCase):
         )
         run_score, _ = score_run_metrics([metric], self.baseline, cfg)
         self.assertGreater(run_score.mean.reliability, 0.7)
+        self.assertIsNotNone(run_score.axis_state)
+        self.assertEqual(run_score.axis_state.reliability.status, "imputed")
         self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
 
     def test_validity_disabled_sets_default_validity(self) -> None:
@@ -331,6 +335,8 @@ class ScoringEdgeCaseTests(unittest.TestCase):
         )
         run_score, _ = score_run_metrics([metric], self.baseline, cfg)
         self.assertGreaterEqual(run_score.mean.validity, 0.74)
+        self.assertIsNotNone(run_score.axis_state)
+        self.assertEqual(run_score.axis_state.validity.status, "imputed")
         self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
 
     def test_spread_gate_disabled_allows_adopt_with_high_spread(self) -> None:
@@ -366,3 +372,73 @@ class ScoringEdgeCaseTests(unittest.TestCase):
         self.assertGreater(run_score.mean.truthness, 0.0)
         resolution = resolve_vec3(run_score, cfg)
         self.assertIn(resolution.action, ("adopt", "reject"))
+
+    def test_disabled_axis_can_remain_undefined(self) -> None:
+        cfg = DetectorConfig(enable_validity=False, disabled_axis_policy="undefined")
+        metric = make_metrics(
+            run_id="undefined-validity",
+            primary_metric=0.670,
+            train_loss=1.31,
+            val_loss=1.45,
+            train_val_gap=0.14,
+            grad_norm_mean=1.9,
+            grad_norm_std=0.10,
+            proxy_corr=0.30,
+            eval_hash="changed",
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        self.assertIsNotNone(run_score.axis_state)
+        self.assertIsNone(run_score.axis_state.validity.value)
+        self.assertEqual(run_score.axis_state.validity.status, "undefined")
+        self.assertEqual(classify_instrument_state(run_score, cfg), "partial")
+        resolution = resolve_vec3(run_score, cfg)
+        self.assertEqual(resolution.action, "keep_going")
+        self.assertIn("partial Vec3 state", resolution.reason)
+
+    def test_relative_truthness_transform_matches_paper_scaling(self) -> None:
+        cfg = DetectorConfig(truthness_transform="relative_delta")
+        metric = make_metrics(
+            run_id="relative-truth",
+            primary_metric=self.baseline.primary_metric * 1.25,
+            train_loss=1.31,
+            val_loss=1.45,
+            train_val_gap=0.14,
+            grad_norm_mean=1.9,
+            grad_norm_std=0.10,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        expected = math.tanh(0.25 * cfg.relative_truth_scale)
+        self.assertAlmostEqual(run_score.mean.truthness, expected, places=5)
+
+    def test_worst_case_axis_aggregation_preserves_bad_component(self) -> None:
+        cfg = DetectorConfig(axis_aggregation="worst_case")
+        metric = make_metrics(
+            run_id="worst-case",
+            primary_metric=0.670,
+            train_loss=1.31,
+            val_loss=1.72,
+            train_val_gap=0.41,
+            grad_norm_mean=2.0,
+            grad_norm_std=0.10,
+        )
+        run_score, _ = score_run_metrics([metric], self.baseline, cfg)
+        gap_health = run_score.axis_components["reliability"]["gap_health"]
+        gradient_health = run_score.axis_components["reliability"]["gradient_health"]
+        seed_variance = run_score.axis_components["reliability"]["seed_variance"]
+        self.assertEqual(run_score.mean.reliability, min(gap_health, gradient_health, seed_variance))
+
+    def test_vec3_prototype_preset_pins_scoring_policies(self) -> None:
+        cfg = vec3_prototype_detector_config()
+        self.assertEqual(cfg.truthness_transform, "relative_delta")
+        self.assertEqual(cfg.axis_aggregation, "worst_case")
+        self.assertEqual(cfg.disabled_axis_policy, "undefined")
+        self.assertEqual(cfg.relative_truth_scale, 4.0)
+        self.assertEqual(cfg.max_spread, 0.35)
+        self.assertEqual(cfg.min_magnitude, 0.15)
+        self.assertEqual(cfg.goodhart_threshold, 0.75)
+        self.assertEqual(cfg.structural_distance_threshold, 0.60)
+        self.assertEqual(detector_config_preset("vec3_prototype"), cfg)
+
+    def test_vec3_prototype_json_matches_named_preset(self) -> None:
+        cfg = load_detector_config(Path("configs/vec3_prototype.json"))
+        self.assertEqual(cfg, vec3_prototype_detector_config())

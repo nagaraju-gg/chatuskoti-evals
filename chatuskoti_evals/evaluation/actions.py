@@ -79,7 +79,8 @@ ACTION_LIBRARY: list[ActionSpec] = [
         name="broken_probe",
         family="failure_injection.broken_probe",
         params={"metric_drop": 0.03},
-        rationale="Explicit adversarial calibration action that degrades the metric and internal stability strongly enough to justify rollback.",
+        rationale="Explicit adversarial calibration action that degrades the metric "
+        "and internal stability strongly enough to justify rollback.",
     ),
     ActionSpec(
         name="pyrrhic_high_variance",

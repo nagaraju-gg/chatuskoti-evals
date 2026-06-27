@@ -64,7 +64,12 @@ def main() -> int:
             a_name = a["name"].replace("_injection", "").replace("_", " ").title()
             b_name = b["name"].replace("_injection", "").replace("_", " ").title()
 
-            print(f"| {a_name} | {b_name} | {'Yes' if same_t else 'No'} | {'Yes' if same_binary else 'No'} | {'No' if same_action else 'Yes'} | {'Yes' if vec3_diff else 'No'} |")
+            print(
+                f"| {a_name} | {b_name} | {'Yes' if same_t else 'No'}"
+                f" | {'Yes' if same_binary else 'No'}"
+                f" | {'No' if same_action else 'Yes'}"
+                f" | {'Yes' if vec3_diff else 'No'} |"
+            )
 
     return 0
 

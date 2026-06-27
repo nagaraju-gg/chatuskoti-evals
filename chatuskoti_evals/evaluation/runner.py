@@ -430,6 +430,8 @@ def _append_run_log(
         "T": run_score.mean.truthness,
         "R": run_score.mean.reliability,
         "V": run_score.mean.validity,
+        "axis_state": to_jsonable(run_score.axis_state) if run_score.axis_state is not None else None,
+        "axis_status": run_score.axis_state.status_map() if run_score.axis_state is not None else {},
         "spread": run_score.spread,
         "resolver_action": resolution.action,
         "resolver_reason": resolution.reason,

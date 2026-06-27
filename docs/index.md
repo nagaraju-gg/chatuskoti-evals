@@ -18,7 +18,7 @@
 | [Canonical failure benchmark](design/canonical_failure_benchmark.md) | 8 canonical cases, metrics, and Vec3 actions |
 | [Distinguishability matrix](design/distinguishability_matrix.md) | Formal sufficiency criterion with state-pair analysis |
 | [Scalar projection diagram](figures/scalar_projection.svg) | Visual: Vec3 cube collapsed onto T axis |
-| [Paper notes](design/paper_notes.md) | Framing guide, figures to create, language to avoid |
+| [Vec3 prototype notes](design/vec3_prototype_notes.md) | Framing guide, figures to create, language to avoid |
 
 ## Releases & Roadmap
 

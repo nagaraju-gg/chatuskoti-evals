@@ -46,7 +46,10 @@ def score_ablation(results: list[dict], detector: DetectorConfig, label: str) ->
         resolution = resolve_vec3(run_score, detector)
         expected_signals = item["expected_signals"]
         actual_signals = item["run_score"]["fired_signals"]
-        matched_expectation = all(signal in actual_signals for signal in expected_signals) and resolution.action == item["expected_resolution"]
+        matched_expectation = (
+            all(signal in actual_signals for signal in expected_signals)
+            and resolution.action == item["expected_resolution"]
+        )
         if matched_expectation:
             matched += 1
         cases.append(

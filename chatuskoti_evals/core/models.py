@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, is_dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+
+AxisStatus = Literal["measured", "imputed", "undefined"]
 
 
 @dataclass(frozen=True)
@@ -10,6 +12,50 @@ class Vec3:
     truthness: float
     reliability: float
     validity: float
+
+
+@dataclass(frozen=True)
+class AxisValue:
+    name: str
+    value: float | None
+    status: AxisStatus = "measured"
+    reason: str = ""
+
+    @property
+    def is_defined(self) -> bool:
+        return self.value is not None
+
+    def projected(self, fallback: float = 0.0) -> float:
+        return self.value if self.value is not None else fallback
+
+
+@dataclass(frozen=True)
+class Vec3State:
+    truthness: AxisValue
+    reliability: AxisValue
+    validity: AxisValue
+
+    @classmethod
+    def measured(cls, vec: Vec3) -> Vec3State:
+        return cls(
+            truthness=AxisValue("truthness", vec.truthness),
+            reliability=AxisValue("reliability", vec.reliability),
+            validity=AxisValue("validity", vec.validity),
+        )
+
+    def to_vec3(self, fallback: float = 0.0) -> Vec3:
+        return Vec3(
+            truthness=self.truthness.projected(fallback),
+            reliability=self.reliability.projected(fallback),
+            validity=self.validity.projected(fallback),
+        )
+
+    def status_map(self) -> dict[str, str]:
+        return {
+            "truthness": self.truthness.status,
+            "reliability": self.reliability.status,
+            "validity": self.validity.status,
+        }
 
 
 @dataclass(frozen=True)
@@ -48,6 +94,7 @@ class RunScore:
     fired_signals: list[str]
     raw_detectors: dict[str, float]
     axis_components: dict[str, dict[str, float]]
+    axis_state: Vec3State | None = None
 
 
 @dataclass(frozen=True)
@@ -136,7 +183,8 @@ def average_run_metrics(metrics: list[RunMetrics], run_id: str, detector_inputs:
         raise ValueError("metrics must not be empty")
     first = metrics[0]
     n = len(metrics)
-    calc = lambda getter: round(sum(getter(item) for item in metrics) / n, 5)
+    def calc(getter):  # noqa: E731
+        return round(sum(getter(item) for item in metrics) / n, 5)
     proxy_keys = first.proxy_metrics.keys()
     return RunMetrics(
         run_id=run_id,

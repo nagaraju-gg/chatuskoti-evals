@@ -31,13 +31,15 @@ def write_svg(path: Path, results: list[dict]) -> None:
     width = 1160
     height = 460
     left = 34
-    top = 28
+
     row_h = 86
     lines: list[str] = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         f'<rect width="{width}" height="{height}" fill="#ffffff"/>',
-        f'<text x="{left}" y="26" font-family="Helvetica" font-size="22" font-weight="700">Canonical Failure Cases — Vec3 Resolution</text>',
-        f'<text x="{left}" y="50" font-family="Helvetica" font-size="12" fill="#444">Each case shares T &gt; 0 with clean gains but requires a distinct action</text>',
+        f'<text x="{left}" y="26" font-family="Helvetica" font-size="22" font-weight="700">'
+        'Canonical Failure Cases — Vec3 Resolution</text>',
+        f'<text x="{left}" y="50" font-family="Helvetica" font-size="12" fill="#444">'
+        'Each case shares T &gt; 0 with clean gains but requires a distinct action</text>',
         '<line x1="34" y1="68" x2="1124" y2="68" stroke="#d1d5db"/>',
         '<text x="42" y="92" font-family="Helvetica" font-size="12" font-weight="700">Case</text>',
         '<text x="282" y="92" font-family="Helvetica" font-size="12" font-weight="700">Metric</text>',
@@ -69,7 +71,9 @@ def write_svg(path: Path, results: list[dict]) -> None:
     lines.extend(
         [
             '<line x1="34" y1="426" x2="1124" y2="426" stroke="#d1d5db"/>',
-            '<text x="34" y="446" font-family="Helvetica" font-size="12" fill="#444">All four cases share positive truthness but require different actions — scalar evaluation cannot distinguish them.</text>',
+            '<text x="34" y="446" font-family="Helvetica" font-size="12" fill="#444">'
+            'All four cases share positive truthness but require different actions — '
+            'scalar evaluation cannot distinguish them.</text>',
             "</svg>",
         ]
     )

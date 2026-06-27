@@ -45,6 +45,20 @@ These axes define eight distinguishable outcome regions.
 
 A scalar representation distinguishes only two.
 
+### Expanded Axis State
+
+The implementation now treats a Vec3 result as more than three bare floats. Each axis carries a status:
+
+* `measured`: computed from detector evidence
+* `imputed`: intentionally filled by policy, such as the historical `0.75` value for a disabled axis
+* `undefined`: absent from the state, not equivalent to zero or any other coordinate
+
+This makes the earlier implementation a subset of the expanded evaluator. The historical behavior is recovered by using
+absolute-delta truthness, weighted R/V aggregation, and imputed disabled axes. Paper-aligned behavior can be expressed by choosing
+relative-delta truthness, worst-case R/V aggregation, paper thresholds, and undefined disabled axes.
+
+The Vec3 prototype configuration is pinned in `configs/vec3_prototype.json` and exposed in Python as `vec3_prototype_detector_config()`.
+
 ### Resolver Actions
 
 Vec3 maps outcome states to controller actions:
@@ -127,7 +141,7 @@ Artifacts are written to `artifacts/`.
 1. `docs/design/why_four_states.md`
 2. Run `python -m chatuskoti_evals`
 3. `docs/design/distinguishability_matrix.md`
-4. `docs/design/paper_notes.md`
+4. `docs/design/vec3_prototype_notes.md`
 
 ---
 
