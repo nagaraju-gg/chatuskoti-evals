@@ -316,7 +316,7 @@ class ScoringEdgeCaseTests(unittest.TestCase):
         )
         run_score, _ = score_run_metrics([metric], self.baseline, cfg)
         self.assertGreater(run_score.mean.reliability, 0.7)
-        self.assertIsNotNone(run_score.axis_state)
+        assert run_score.axis_state is not None
         self.assertEqual(run_score.axis_state.reliability.status, "imputed")
         self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
 
@@ -335,7 +335,7 @@ class ScoringEdgeCaseTests(unittest.TestCase):
         )
         run_score, _ = score_run_metrics([metric], self.baseline, cfg)
         self.assertGreaterEqual(run_score.mean.validity, 0.74)
-        self.assertIsNotNone(run_score.axis_state)
+        assert run_score.axis_state is not None
         self.assertEqual(run_score.axis_state.validity.status, "imputed")
         self.assertEqual(resolve_vec3(run_score, cfg).action, "adopt")
 
@@ -387,7 +387,7 @@ class ScoringEdgeCaseTests(unittest.TestCase):
             eval_hash="changed",
         )
         run_score, _ = score_run_metrics([metric], self.baseline, cfg)
-        self.assertIsNotNone(run_score.axis_state)
+        assert run_score.axis_state is not None
         self.assertIsNone(run_score.axis_state.validity.value)
         self.assertEqual(run_score.axis_state.validity.status, "undefined")
         self.assertEqual(classify_instrument_state(run_score, cfg), "partial")
